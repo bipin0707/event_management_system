@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Events | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .events-hero {
+    border-radius: 20px;
+    padding: 28px 32px;
+    background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  }
+  .events-hero-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .events-hero-subtitle {
+    font-size: 0.98rem;
+    opacity: 0.95;
+  }
+  .event-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.15);
+    font-size: 0.8rem;
+  }
+  .event-card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+    transition: 0.2s ease;
+  }
+  .event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+  }
+  .badge-type {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .badge-exhibition { background:#FFD166; color:#6A5300; }
+  .badge-conference { background:#06D6A0; color:#004D3A; }
+  .badge-concert    { background:#FF6B6B; color:#680000; }
+  .badge-sports     { background:#4DABF7; color:#003E73; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- HERO -->
+  <div class="events-hero mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <span class="event-pill mb-2">All published events</span>
+        <h1 class="events-hero-title mb-2">Browse all events</h1>
+        <p class="events-hero-subtitle mb-0">
+          Explore exhibitions, conferences, concerts and sports. Click into any event
+          to see full details and booking options.
+        </p>
+      </div>
+
+      {% if user.is_authenticated and user.userprofile.organizer %}
+        <div class="text-md-end">
+          <a href="{% url 'events:manage_events' %}"
+            class="btn btn-light btn-sm text-dark">
+            Go to organizer dashboard
+          </a>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  {% if events %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for event in events %}
+        <div class="col">
+          <div class="card event-card h-100">
+            <div class="card-body">
+              {% if event.venue.type == "Exhibition" %}
+                <span class="badge-type badge-exhibition">Exhibition</span>
+              {% elif event.venue.type == "Conference" %}
+                <span class="badge-type badge-conference">Conference</span>
+              {% elif event.venue.type == "Concert" %}
+                <span class="badge-type badge-concert">Concert</span>
+              {% elif event.venue.type == "Sports" %}
+                <span class="badge-type badge-sports">Sports</span>
+              {% endif %}
+
+              <h5 class="mt-3 mb-1" style="color:#6C63FF;">{{ event.title }}</h5>
+
+              <p class="mb-1 text-muted">
+                {{ event.venue.name }} · {{ event.organizer.name }}
+              </p>
+
+              {% if event.description %}
+                <p class="mb-1">
+                  {{ event.description|truncatechars:90 }}
+                </p>
+              {% endif %}
+
+              <p class="mb-1">
+                <strong>Starts:</strong> {{ event.start_time|date:"M d, Y H:i" }}
+              </p>
+
+              {% if event.ticket_price %}
+                <p class="mb-1">
+                  <strong>Price:</strong> ${{ event.ticket_price }}
+                </p>
+              {% else %}
+                <p class="mb-1 text-success">
+                  <strong>Free event</strong>
+                </p>
+              {% endif %}
+
+              <a href="{% url 'events:event_detail' event.event_id %}"
+                 class="btn btn-primary btn-sm mt-2">
+                View details
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info mt-3">
+      There are no upcoming published events at the moment. Please check back soon.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

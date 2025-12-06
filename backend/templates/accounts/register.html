@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Register | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .auth-wrapper {
+      min-height: calc(100vh - 140px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .auth-card {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 24px;
+      padding: 28px 26px 22px;
+      background: radial-gradient(circle at top left, rgba(108,99,255,0.18), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(0,180,216,0.18), transparent 55%),
+                  rgba(7, 10, 30, 0.96);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      backdrop-filter: blur(20px);
+      color: #f8f9ff;
+  }
+
+  body.theme-light .auth-card {
+      background: #ffffff;
+      color: #111827;
+      border-color: rgba(15,23,42,0.06);
+      box-shadow: 0 16px 40px rgba(15,23,42,0.14);
+  }
+
+  .auth-title {
+      font-size: 1.7rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+  }
+
+  .auth-subtitle {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 1.2rem;
+  }
+
+  .auth-card form p {
+      margin-bottom: 0.95rem;
+  }
+
+  .auth-card form p label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+  }
+
+  .auth-card form p input {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 0.55rem 0.85rem;
+      font-size: 0.92rem;
+      background: rgba(15,23,42,0.85);
+      color: #f9fafb;
+  }
+
+  body.theme-light .auth-card form p input {
+      background: #f9fafb;
+      color: #111827;
+  }
+
+  .auth-card .helptext,
+  .auth-card ul {
+      font-size: 0.8rem;
+      opacity: 0.9;
+  }
+
+  .auth-card .btn-auth-primary {
+      border-radius: 999px;
+      padding-inline: 1.9rem;
+      font-weight: 600;
+      font-size: 0.96rem;
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      border: none;
+  }
+
+  .auth-card .btn-auth-primary:hover {
+      filter: brightness(1.07);
+  }
+
+  .auth-footer-text {
+      font-size: 0.85rem;
+      margin-top: 0.9rem;
+  }
+
+  .auth-footer-text a {
+      font-weight: 500;
+      text-decoration: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper container">
+  <div class="auth-card">
+    <div class="mb-3">
+      <div class="auth-title">Create an Account</div>
+      <div class="auth-subtitle">
+        Sign up to book events, manage your tickets, or become an organizer later.
+      </div>
+    </div>
+
+    {% if form.errors %}
+      <div class="alert alert-danger py-2 px-3 mb-3">
+        Please fix the errors below and try again.
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <div class="d-flex justify-content-end mt-3">
+        <button type="submit" class="btn btn-success btn-auth-primary">
+          Create account
+        </button>
+      </div>
+    </form>
+
+    <p class="auth-footer-text text-center mb-0">
+      Already have an account?
+      <a href="{% url 'login' %}">Login here</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}

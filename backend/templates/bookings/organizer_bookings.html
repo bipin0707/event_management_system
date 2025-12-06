@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Event bookings | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .bookings-hero {
+      border-radius: 18px;
+      padding: 22px 24px;
+      background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+      color: white;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+      margin-bottom: 24px;
+  }
+
+  .bookings-hero-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+  }
+
+  .bookings-hero-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.95;
+  }
+
+  .status-pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+  }
+
+  .status-confirmed {
+      background: rgba(25, 135, 84, 0.08);
+      color: #198754;
+  }
+
+  .status-pending {
+      background: rgba(255, 193, 7, 0.12);
+      color: #856404;
+  }
+
+  .status-cancelled {
+      background: rgba(220, 53, 69, 0.08);
+      color: #dc3545;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO ------------------------------------------------------------------->
+<div class="bookings-hero">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+    <div class="mb-3 mb-md-0">
+      <div class="bookings-hero-title mb-1">
+        Bookings overview
+      </div>
+      <div class="bookings-hero-subtitle">
+        {% if selected_event %}
+          Showing bookings for <strong>{{ selected_event.title }}</strong>.
+        {% else %}
+          Showing bookings for all of your events.
+        {% endif %}
+      </div>
+    </div>
+    <div class="text-md-end">
+      <a href="{% url 'events:manage_events' %}" class="btn btn-light btn-sm text-dark">
+        Back to organizer dashboard
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE ------------------------------------------------------------------>
+{% if bookings %}
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">Bookings</h5>
+        {% if selected_event %}
+          <a href="{% url 'bookings:organizer_bookings' %}" class="btn btn-sm btn-outline-secondary">
+            View all bookings
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Event</th>
+              <th>Customer</th>
+              <th>Tickets</th>
+              <th>Total price</th>
+              <th>Status</th>
+              <th>Booked at</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in bookings %}
+              <tr>
+                <td>
+                  <strong>{{ booking.event.title }}</strong><br>
+                  <small class="text-muted">
+                    {{ booking.event.venue.name }}
+                  </small>
+                </td>
+                <td>
+                  {{ booking.customer.name }}<br>
+                  <small class="text-muted">{{ booking.customer.email }}</small>
+                </td>
+                <td>{{ booking.ticket_qty }}</td>
+                <td>${{ booking.total_price }}</td>
+                <td>
+                  {% if booking.status|lower == "confirmed" %}
+                    <span class="status-pill status-confirmed">
+                      {{ booking.status }}
+                    </span>
+                  {% elif booking.status|lower == "pending" %}
+                    <span class="status-pill status-pending">
+                      {{ booking.status }}
+                    </span>
+                  {% else %}
+                    <span class="status-pill status-cancelled">
+                      {{ booking.status }}
+                    </span>
+                  {% endif %}
+                </td>
+                <td>{{ booking.booked_at|date:"M d, Y H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    There are no bookings yet{% if selected_event %} for this event{% endif %}.
+  </div>
+{% endif %}
+
+{% endblock %}

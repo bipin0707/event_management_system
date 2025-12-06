@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .analytics-hero {
+    border-radius: 24px;
+    padding: 24px 32px;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    color: #f9fafb;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.45);
+  }
+
+  .analytics-kpi-row {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+
+  .analytics-kpi-card {
+    border-radius: 18px;
+    padding: 18px 20px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.6);
+    background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.28), rgba(15, 23, 42, 0.95));
+    color: #e5e7eb;
+  }
+
+  .analytics-kpi-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 4px;
+  }
+
+  .analytics-kpi-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #f9fafb;
+  }
+
+  .analytics-kpi-sub {
+    font-size: 0.86rem;
+    color: #9ca3af;
+  }
+
+  .analytics-section-card {
+    border-radius: 22px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    padding: 20px 22px 18px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.65);
+    background: radial-gradient(circle at top left, rgba(55, 65, 81, 0.55), rgba(15, 23, 42, 0.98));
+    color: #f9fafb;
+  }
+
+  .analytics-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .analytics-table {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .analytics-table thead th {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.6);
+    padding-bottom: 8px;
+    font-weight: 600;
+    color: #e5e7eb;
+  }
+
+  .analytics-table tbody td {
+    padding-top: 9px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(55, 65, 81, 0.8);
+    color: #e5e7eb;
+  }
+
+  .analytics-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .analytics-month-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(55, 65, 81, 0.8);
+  }
+
+  .analytics-month-item:last-child {
+    border-bottom: none;
+  }
+
+  .analytics-month-label {
+    font-weight: 500;
+    color: #e5e7eb;
+  }
+
+  .analytics-month-meta {
+    font-size: 0.8rem;
+    color: #9ca3af;
+  }
+
+  .analytics-month-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #4f46e5, #22c55e);
+    margin-top: 6px;
+  }
+
+  /* Make sure text stays readable in light mode too */
+  body.light-mode .analytics-kpi-card,
+  body.light-mode .analytics-section-card {
+    background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.5), rgba(15, 23, 42, 0.98));
+    color: #f9fafb;
+  }
+
+  body.light-mode .analytics-kpi-label,
+  body.light-mode .analytics-kpi-sub,
+  body.light-mode .analytics-month-meta {
+    color: #e5e7eb;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- HERO -->
+  <div class="analytics-hero mb-4 d-flex justify-content-between align-items-start">
+    <div>
+      <h2 class="mb-1">Analytics</h2>
+      <p class="mb-0">
+        See how your events are performing – bookings, tickets and revenue in one place.
+      </p>
+    </div>
+    <div class="text-end">
+      <a href="{% url 'events:manage_events' %}" class="btn btn-outline-light btn-sm">
+        ← Back to dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="row analytics-kpi-row">
+    <div class="col-md-3 mb-3">
+      <div class="analytics-kpi-card h-100">
+        <div class="analytics-kpi-label">Events</div>
+        <div class="analytics-kpi-value">{{ total_events }}</div>
+        <div class="analytics-kpi-sub">
+          {{ upcoming_events }} upcoming
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="analytics-kpi-card h-100">
+        <div class="analytics-kpi-label">Bookings</div>
+        <div class="analytics-kpi-value">{{ total_bookings }}</div>
+        <div class="analytics-kpi-sub">
+          Non-cancelled bookings
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="analytics-kpi-card h-100">
+        <div class="analytics-kpi-label">Tickets sold</div>
+        <div class="analytics-kpi-value">{{ total_tickets }}</div>
+        <div class="analytics-kpi-sub">
+          Across all events
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="analytics-kpi-card h-100">
+        <div class="analytics-kpi-label">Revenue</div>
+        <div class="analytics-kpi-value">${{ total_revenue }}</div>
+        <div class="analytics-kpi-sub">
+          Sum of payments
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN ROW -->
+  <div class="row g-4">
+    <!-- Per-event performance -->
+    <div class="col-lg-7">
+      <div class="analytics-section-card h-100">
+        <div class="analytics-section-title">Performance by event</div>
+        {% if per_event %}
+          <div class="table-responsive">
+            <table class="analytics-table">
+              <thead>
+                <tr>
+                  <th class="text-start">Event</th>
+                  <th class="text-center">Bookings</th>
+                  <th class="text-center">Tickets</th>
+                  <th class="text-end">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in per_event %}
+                  <tr>
+                    <td class="text-start">{{ row.event__title }}</td>
+                    <td class="text-center">{{ row.bookings }}</td>
+                    <td class="text-center">{{ row.tickets|default:"0" }}</td>
+                    <td class="text-end">
+                      ${{ row.revenue|default:"0" }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">No bookings yet for your events.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Last 6 months -->
+    <div class="col-lg-5">
+      <div class="analytics-section-card h-100">
+        <div class="analytics-section-title">Last 6 months</div>
+        <p class="analytics-month-meta mb-3">
+          Bookings and tickets per month (non-cancelled).
+        </p>
+
+        {% if monthly %}
+          {% for m in monthly %}
+            <div class="analytics-month-item">
+              <div class="d-flex justify-content-between">
+                <span class="analytics-month-label">
+                  {{ m.month|date:"M Y" }}
+                </span>
+                <span class="analytics-month-meta">
+                  {{ m.bookings }} bookings · {{ m.tickets|default:"0" }} tickets
+                </span>
+              </div>
+              <div class="analytics-month-bar"></div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted mb-0">
+            Not enough data yet. Once you start receiving bookings, monthly trends will appear here.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

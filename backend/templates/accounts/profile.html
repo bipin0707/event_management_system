@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .profile-header {
+    background: linear-gradient(135deg, #5b6bff, #2dc9ff);
+    border-radius: 18px;
+    padding: 28px 24px;
+    color: white;
+    margin-bottom: 24px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  }
+
+  .profile-card {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(18px);
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 28px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .booking-card {
+    background: #ffffff;
+    color: #222;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #9ecaff;
+  }
+
+  /* Fix dropdown overlap */
+  #userMenu {
+    z-index: 99999 !important;
+    position: absolute !important;
+  }
+  
+  .navbar {
+    z-index: 10000 !important;
+    position: relative;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- HEADER -->
+  <div class="profile-header">
+    <h2 class="mb-1">{{ user.get_full_name|default:user.username }}</h2>
+    <p class="mb-2">{{ user.email }}</p>
+
+    {% if profile and profile.organizer %}
+      <span class="badge bg-dark">Organizer</span>
+      <a href="{% url 'events:manage_events' %}" class="btn btn-light btn-sm ms-2">
+        Organizer dashboard
+      </a>
+    {% else %}
+      <span class="badge bg-secondary">Participant</span>
+    {% endif %}
+  </div>
+
+  <!-- UPCOMING BOOKINGS -->
+  <h4 class="section-title">Upcoming Bookings</h4>
+  {% if upcoming_bookings %}
+    {% for booking in upcoming_bookings %}
+      <div class="booking-card mb-3">
+        <h5>{{ booking.event.title }}</h5>
+        <p class="text-muted">{{ booking.event.venue.name }} – {{ booking.event.start_time|date:"M d, Y H:i" }}</p>
+        <p><strong>Tickets:</strong> {{ booking.ticket_qty }}</p>
+        <p><strong>Total Paid:</strong> ${{ booking.total_price }}</p>
+
+        <a href="{% url 'events:event_detail' booking.event.event_id %}"
+           class="btn btn-outline-dark btn-sm">View event</a>
+
+        <a href="{% url 'bookings:booking_receipt' booking.booking_id %}"
+           class="btn btn-primary btn-sm ms-2">View receipt</a>
+
+        {% if booking.status != "CANCELLED" and booking.event.start_time > now %}
+          <a href="{% url 'bookings:cancel_booking' booking.booking_id %}"
+             class="btn btn-danger btn-sm ms-2">Cancel</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted">No upcoming bookings.</p>
+  {% endif %}
+
+  <!-- PAST BOOKINGS -->
+  <h4 class="section-title mt-4">Past Bookings</h4>
+  {% if past_bookings %}
+    {% for booking in past_bookings %}
+      <div class="booking-card mb-3">
+        <h5>{{ booking.event.title }}</h5>
+        <p class="text-muted">{{ booking.event.venue.name }} – {{ booking.event.start_time|date:"M d, Y H:i" }}</p>
+
+        <p><strong>Tickets:</strong> {{ booking.ticket_qty }}</p>
+        <p><strong>Total Paid:</strong> ${{ booking.total_price }}</p>
+
+        <a href="{% url 'events:event_detail' booking.event.event_id %}"
+           class="btn btn-outline-dark btn-sm">View event</a>
+
+        <a href="{% url 'bookings:booking_receipt' booking.booking_id %}"
+           class="btn btn-primary btn-sm ms-2">View receipt</a>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted">No past bookings.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

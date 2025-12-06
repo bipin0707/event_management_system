@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}New Venue | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .venue-form-shell {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .venue-form-card {
+    border-radius: 26px;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.85);
+    background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.55), #020617);
+    color: #e5e7eb;
+  }
+
+  .venue-form-header {
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    color: #f9fafb;
+  }
+
+  .venue-form-header h2 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+
+  .venue-form-header p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.92;
+  }
+
+  .venue-form-body {
+    padding: 22px 24px 22px;
+  }
+
+  .venue-form-label {
+    font-weight: 500;
+    font-size: 0.88rem;
+    color: #e5e7eb;
+  }
+
+  .venue-form-help {
+    font-size: 0.78rem;
+    color: #9ca3af;
+  }
+
+  /* 🔧 Dark inputs in both themes */
+  .venue-form-body input,
+  .venue-form-body select,
+  .venue-form-body textarea {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(148, 163, 184, 0.6) !important;
+    color: #f9fafb !important;
+    border-radius: 12px;
+  }
+
+  .venue-form-body input:focus,
+  .venue-form-body select:focus,
+  .venue-form-body textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: #3b82f6 !important;
+  }
+
+  .venue-form-footer {
+    padding: 16px 24px 22px;
+    border-top: 1px solid rgba(31, 41, 55, 0.9);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .venue-form-footer .btn {
+    border-radius: 999px;
+    padding-inline: 22px;
+  }
+
+  body.light-mode .venue-form-card {
+    background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.55), #020617);
+    color: #e5e7eb;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="venue-form-shell">
+    <div class="venue-form-card">
+      <div class="venue-form-header d-flex justify-content-between align-items-center">
+        <div>
+          <h2>Add a new venue</h2>
+          <p>Create a reusable place for your events with capacity and type.</p>
+        </div>
+        <div>
+          <a href="{% url 'events:manage_events' %}" class="btn btn-outline-light btn-sm">
+            Back to Manage
+          </a>
+        </div>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="venue-form-body">
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="venue-form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {{ field }}
+              {% if field.help_text %}
+                <div class="venue-form-help">{{ field.help_text }}</div>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="venue-form-footer">
+          <a href="{% url 'events:manage_events' %}" class="btn btn-outline-light">
+            Cancel
+          </a>
+          <button type="submit" class="btn btn-primary">
+            Save venue
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

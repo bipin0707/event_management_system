@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .chat-hero {
+      border-radius: 18px;
+      padding: 22px 24px;
+      background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+      color: white;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+      margin-bottom: 16px;
+  }
+
+  .chat-hero-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+  }
+
+  .chat-hero-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.95;
+  }
+
+  .chat-layout {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      height: calc(100vh - 230px); /* tweak if needed */
+      max-height: 700px;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+      overflow: hidden;
+  }
+
+  .chat-messages {
+      padding: 16px 18px;
+      overflow-y: auto;
+      background: #f8f9fa;
+  }
+
+  .chat-input-area {
+      border-top: 1px solid #dee2e6;
+      padding: 12px 14px;
+      background: #ffffff;
+  }
+
+  .bubble-row {
+      display: flex;
+      margin-bottom: 10px;
+  }
+
+  .bubble-user {
+      margin-left: auto;
+      max-width: 70%;
+      background: #6C63FF;
+      color: #ffffff;
+      border-radius: 16px 16px 4px 16px;
+      padding: 8px 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      font-size: 0.9rem;
+  }
+
+  .bubble-assistant {
+      margin-right: auto;
+      max-width: 70%;
+      background: #ffffff;
+      color: #212529;
+      border-radius: 16px 16px 16px 4px;
+      padding: 8px 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      font-size: 0.9rem;
+  }
+
+  .bubble-meta {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-bottom: 2px;
+  }
+
+  .chat-input {
+      resize: none;
+      width: 100%;
+      font-size: 0.95rem;
+  }
+
+  .chat-helper {
+      font-size: 0.8rem;
+      color: #6c757d;
+  }
+
+  .btn-send {
+      white-space: nowrap;
+  }
+
+  .chat-placeholder {
+      color: #6c757d;
+      font-size: 0.9rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO --------------------------------------------------------------- -->
+<div class="chat-hero">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+    <div class="mb-3 mb-md-0">
+      <div class="chat-hero-title mb-1">
+        AI Assistant
+      </div>
+      <div class="chat-hero-subtitle">
+        Ask questions about events, bookings and the EMS features in natural language.
+        The assistant can combine your questions with data from the system.
+      </div>
+    </div>
+    <div class="text-md-end small">
+      <div>Examples you can try:</div>
+      <ul class="mb-0">
+        <li>“What concerts are available this month?”</li>
+        <li>“Which events are free to attend?”</li>
+        <li>“How many bookings do my events have?” (organizer)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT LAYOUT -------------------------------------------------------- -->
+<div class="chat-layout">
+  <!-- Messages -->
+  <div class="chat-messages" id="chat-messages">
+    <p class="chat-placeholder" id="chat-placeholder">
+      Start the conversation by asking a question about events, bookings or how the system works.
+    </p>
+  </div>
+
+  <!-- Input form -->
+  <div class="chat-input-area">
+    <form id="chat-form" class="d-flex align-items-end gap-2">
+      <div class="flex-grow-1">
+        <textarea id="chat-input"
+                  class="form-control chat-input"
+                  rows="2"
+                  placeholder="Ask me anything about your events, bookings or EMS features..."></textarea>
+        <div class="chat-helper mt-1">
+          The assistant can combine your question with data from the EMS database
+          (events, bookings, venues, organizers) when appropriate.
+        </div>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary btn-send" id="chat-send-btn">
+          Send
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("chat-form");
+      const input = document.getElementById("chat-input");
+      const messagesContainer = document.getElementById("chat-messages");
+      const sendBtn = document.getElementById("chat-send-btn");
+      const placeholder = document.getElementById("chat-placeholder");
+
+      function scrollToBottom() {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      function addBubble(role, text) {
+          if (placeholder) {
+              placeholder.remove();
+          }
+
+          const row = document.createElement("div");
+          row.classList.add("bubble-row");
+
+          const bubble = document.createElement("div");
+          const meta = document.createElement("div");
+          meta.classList.add("bubble-meta");
+
+          if (role === "user") {
+              bubble.classList.add("bubble-user");
+              meta.classList.add("text-end");
+              meta.textContent = "You";
+          } else {
+              bubble.classList.add("bubble-assistant");
+              meta.textContent = "Assistant";
+          }
+
+          bubble.appendChild(meta);
+
+          const body = document.createElement("div");
+          body.innerText = text;
+          bubble.appendChild(body);
+
+          row.appendChild(bubble);
+          messagesContainer.appendChild(row);
+          scrollToBottom();
+      }
+
+      form.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const message = input.value.trim();
+          if (!message) {
+              return;
+          }
+
+          // Show user message immediately
+          addBubble("user", message);
+
+          // Clear input & disable while waiting
+          input.value = "";
+          input.disabled = true;
+          sendBtn.disabled = true;
+
+          fetch("{% url 'chat_api' %}", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ message: message })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.reply) {
+                  addBubble("assistant", data.reply);
+              } else if (data.error) {
+                  addBubble("assistant", "Error: " + data.error);
+              } else {
+                  addBubble("assistant", "Sorry, I didn't receive a valid reply from the server.");
+              }
+          })
+          .catch(err => {
+              addBubble("assistant", "An error occurred while contacting the AI backend.");
+          })
+          .finally(() => {
+              input.disabled = false;
+              sendBtn.disabled = false;
+              input.focus();
+          });
+      });
+
+      // Optional: submit on Ctrl+Enter
+      input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              form.dispatchEvent(new Event("submit"));
+          }
+      });
+  });
+</script>
+
+{% endblock %}

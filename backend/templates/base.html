@@ -1,0 +1,591 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Event Management System{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      --nav-height: 70px;
+    }
+
+    /* ---------- THEME TOKENS ---------- */
+
+    body.dark-mode {
+      --bg-body: #020617;
+      --bg-body-soft: #020617;
+      --bg-nav: rgba(15, 23, 42, 0.96);
+      --nav-border: rgba(148, 163, 184, 0.28);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --card-bg: rgba(15, 23, 42, 0.96);
+      --card-bg-soft: rgba(15, 23, 42, 0.9);
+      --card-border: rgba(148, 163, 184, 0.38);
+      --pill-bg: rgba(15, 23, 42, 0.95);
+      --pill-active: rgba(59, 130, 246, 0.35);
+      --shadow-strong: 0 28px 80px rgba(0, 0, 0, 0.75);
+      --shadow-soft: 0 14px 38px rgba(15, 23, 42, 0.85);
+    }
+
+    body.light-mode {
+      --bg-body: #f3f4f6;
+      --bg-body-soft: #f9fafb;
+      --bg-nav: rgba(255, 255, 255, 0.92);
+      --nav-border: rgba(148, 163, 184, 0.32);
+      --text-main: #0f172a;
+      --text-muted: #6b7280;
+      --card-bg: #ffffff;
+      --card-bg-soft: #f9fafb;
+      --card-border: rgba(148, 163, 184, 0.35);
+      --pill-bg: rgba(255, 255, 255, 0.8);
+      --pill-active: rgba(37, 99, 235, 0.12);
+      --shadow-strong: 0 24px 70px rgba(15, 23, 42, 0.18);
+      --shadow-soft: 0 14px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    body.dark-mode {
+      background: radial-gradient(circle at top, #111827, #020617 60%);
+    }
+
+    body.light-mode {
+      background: radial-gradient(circle at top, #ffffff, #e5e7eb 65%);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ---------- NAVBAR ---------- */
+
+    .ems-nav-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 1100;
+      backdrop-filter: blur(18px);
+    }
+
+    .ems-nav-shell {
+      max-width: 1180px;
+      margin: 12px auto 0;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--bg-nav);
+      border: 1px solid var(--nav-border);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      position: relative;
+      z-index: 1101;
+    }
+
+    .ems-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .ems-brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #38bdf8, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #f9fafb;
+      font-size: 0.9rem;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+    }
+
+    .ems-brand-text {
+      font-weight: 600;
+      font-size: 0.98rem;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .ems-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .ems-nav-link {
+      position: relative;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .ems-nav-link:hover {
+      text-decoration: none;
+      background: var(--pill-bg);
+      border-color: rgba(148, 163, 184, 0.35);
+      color: var(--text-main);
+    }
+
+    .ems-nav-link.active {
+      background: var(--pill-active);
+      border-color: rgba(129, 140, 248, 0.7);
+      color: #f9fafb;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.35);
+    }
+
+    body.light-mode .ems-nav-link.active {
+      color: #0f172a;
+    }
+
+    .ems-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1102;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 20%, #f97316, #eab308);
+      color: #020617;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(250, 204, 21, 0.45);
+      font-size: 1rem;
+    }
+
+    body.dark-mode .theme-toggle {
+      background: radial-gradient(circle at 30% 20%, #0f172a, #020617);
+      color: #e5e7eb;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.8);
+    }
+
+    /* User menu */
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px 4px 4px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #38bdf8, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: #f9fafb;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .user-name {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-caret {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .user-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 10px);
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-strong);
+      padding: 8px 0;
+      min-width: 180px;
+      display: none;
+      z-index: 2000;  /* ensure above cards on profile page */
+    }
+
+    .user-menu.show {
+      display: block;
+    }
+
+    .user-menu a {
+      display: block;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      color: var(--text-main);
+    }
+
+    .user-menu a:hover {
+      background: rgba(37, 99, 235, 0.16);
+      text-decoration: none;
+    }
+
+    /* Login btn when not authenticated */
+    .login-btn {
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: var(--pill-bg);
+      color: var(--text-main);
+      font-size: 0.9rem;
+    }
+
+    .login-btn:hover {
+      background: rgba(37, 99, 235, 0.15);
+      text-decoration: none;
+    }
+
+    /* ---------- PAGE LAYOUT ---------- */
+
+    main.ems-main {
+      max-width: 1180px;
+      margin: 16px auto 32px;
+      padding-inline: 16px;
+      min-height: calc(100vh - var(--nav-height) - 80px);
+    }
+
+    .ems-footer {
+      text-align: center;
+      padding: 16px 0 24px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      opacity: 0.9;
+    }
+
+    /* ---------- GENERIC CARDS / HERO ---------- */
+
+    .hero-banner {
+      border-radius: 30px;
+      padding: 24px 28px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: #f9fafb;
+      box-shadow: var(--shadow-strong);
+    }
+
+    .hero-kicker {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+    }
+
+    .hero-title {
+      font-size: 1.9rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .section-card,
+    .glass-card {
+      border-radius: 22px;
+      padding: 18px 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+      color: var(--text-main);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .section-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .kpi-card {
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: var(--card-bg-soft);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.75);
+    }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .kpi-value {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .kpi-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ---------- BUTTON TWEAKS ---------- */
+
+    .btn-primary {
+      border-radius: 999px;
+      padding-inline: 18px;
+    }
+
+    .btn-outline-light {
+      border-radius: 999px;
+      padding-inline: 18px;
+    }
+
+    /* Ensure outline-light is visible in light mode */
+    body.light-mode .btn-outline-light {
+      border-color: rgba(15, 23, 42, 0.4);
+      color: #0f172a;
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    body.light-mode .btn-outline-light:hover {
+      background-color: #0f172a;
+      color: #f9fafb;
+      border-color: #0f172a;
+    }
+
+    /* ---------- TEXT VISIBILITY HELPERS ---------- */
+
+    .text-muted-soft {
+      color: var(--text-muted) !important;
+    }
+
+    /* For sections that were too faint in light mode (e.g. analytics "Last 6 months") */
+    body.light-mode .analytics-muted {
+      color: #374151 !important;
+      opacity: 0.9;
+    }
+
+    body.dark-mode .analytics-muted {
+      color: #9ca3af !important;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+
+    @media (max-width: 768px) {
+      .ems-nav-shell {
+        border-radius: 20px;
+        padding-inline: 10px;
+      }
+
+      .ems-nav-links {
+        display: none;  /* keep simple for now on mobile */
+      }
+
+      .ems-brand-text {
+        display: none;
+      }
+
+      main.ems-main {
+        padding-inline: 12px;
+      }
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<script>
+(function() {
+    const cookies = Object.fromEntries(document.cookie.split("; ").map(v => v.split("=")));
+    const theme = cookies.theme || "dark-mode";
+    document.body.classList.add(theme);
+})();
+</script>
+  <!-- NAVBAR -->
+  <header class="ems-nav-wrapper">
+    <div class="ems-nav-shell">
+      <div class="ems-brand">
+        <div class="ems-brand-logo">EMS</div>
+        <div class="ems-brand-text">Event Management System</div>
+      </div>
+
+      <nav class="ems-nav-links">
+        <a href="{% url 'home' %}"
+           class="ems-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+          Home
+        </a>
+
+        <a href="{% url 'events:event_list' %}"
+           class="ems-nav-link {% if request.resolver_match.namespace == 'events' and request.resolver_match.url_name == 'event_list' %}active{% endif %}">
+          Events
+        </a>
+
+        {# Manage / Become organizer in main nav #}
+        {% if user.is_authenticated %}
+          {% if user.userprofile.organizer %}
+            <a href="{% url 'events:manage_events' %}"
+               class="ems-nav-link {% if request.resolver_match.namespace == 'events' and request.resolver_match.url_name|slice:':6' == 'manage' %}active{% endif %}">
+              Manage
+            </a>
+          {% else %}
+            <a href="{% url 'accounts:become_organizer' %}"
+               class="ems-nav-link {% if request.resolver_match.namespace == 'accounts' and request.resolver_match.url_name == 'become_organizer' %}active{% endif %}">
+              Become organizer
+            </a>
+          {% endif %}
+        {% endif %}
+
+        <a href="{% url 'chat_page' %}"
+           class="ems-nav-link {% if request.resolver_match.url_name == 'chat_page' %}active{% endif %}">
+          AI Assistant
+        </a>
+
+        {% if user.is_authenticated %}
+          <a href="{% url 'bookings:my_bookings' %}"
+             class="ems-nav-link {% if request.resolver_match.namespace == 'bookings' and request.resolver_match.url_name == 'my_bookings' %}active{% endif %}">
+            My Bookings
+          </a>
+        {% endif %}
+      </nav>
+
+      <div class="ems-right">
+        <!-- Theme toggle -->
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+          🌙
+        </button>
+
+        {% if user.is_authenticated %}
+          <!-- User dropdown -->
+          <div class="position-relative">
+            <div class="user-pill" id="userMenuToggle">
+              <div class="user-avatar">
+                {{ user.username|first|upper }}
+              </div>
+              <div class="user-name">Hi, {{ user.username }}</div>
+              <div class="user-caret">▾</div>
+            </div>
+            <div class="user-menu" id="userMenu">
+              <a href="{% url 'accounts:profile' %}">Profile</a>
+
+              {% if user.userprofile.organizer %}
+                <a href="{% url 'events:manage_events' %}">Organizer dashboard</a>
+              {% else %}
+                <a href="{% url 'accounts:become_organizer' %}">Become organizer</a>
+              {% endif %}
+
+              <a href="{% url 'logout' %}">Logout</a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="login-btn">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="ems-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="ems-footer">
+    © Event Management System
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ---------- THEME TOGGLE ----------
+    (function () {
+      const body = document.body;
+      const toggle = document.getElementById("themeToggle");
+
+      function setTheme(mode) {
+        body.classList.remove("light-mode", "dark-mode");
+        body.classList.add(mode);
+        document.cookie = "theme=" + mode + ";path=/;max-age=31536000";
+        if (mode === "dark-mode") {
+          toggle.textContent = "🌙";
+        } else {
+          toggle.textContent = "☀️";
+        }
+      }
+
+      // initial from body class
+      toggle.addEventListener("click", function () {
+        if (body.classList.contains("dark-mode")) {
+          setTheme("light-mode");
+        } else {
+          setTheme("dark-mode");
+        }
+      });
+    })();
+
+    // ---------- USER MENU ----------
+    (function () {
+      const toggle = document.getElementById("userMenuToggle");
+      const menu = document.getElementById("userMenu");
+      if (!toggle || !menu) return;
+
+      toggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        menu.classList.toggle("show");
+      });
+
+      document.addEventListener("click", function () {
+        menu.classList.remove("show");
+      });
+    })();
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}Home | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* HERO + QUICK CARD ----------------------------------------------------- */
+  .hero-card {
+      border-radius: 20px;
+      padding: 50px 32px;
+      background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+      color: white;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  }
+
+  .quick-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  .quick-card p,
+  .quick-card strong {
+      color: #ffffff !important;
+  }
+
+  .hero-title {
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+  }
+
+  .hero-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.95;
+  }
+
+  .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.15);
+      font-size: .8rem;
+  }
+
+  /* BUTTON HOVER ----------------------------------------------------------- */
+  .btn-lg,
+  .btn {
+      transition: 0.2s ease;
+  }
+
+  .btn-lg:hover,
+  .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  }
+
+  /* SECTION TITLES --------------------------------------------------------- */
+  .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #6C63FF;
+  }
+
+  /* ROLE CARDS ------------------------------------------------------------- */
+  .role-card {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+  }
+
+  .role-card .card-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+  }
+
+  .role-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6C63FF, #00B4D8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: white;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  /* “WHAT IS EMS” + EVENT TYPES ROW --------------------------------------- */
+  .event-types-row {
+      display: flex;
+      align-items: stretch;
+      gap: 1.5rem;
+  }
+
+  .event-types-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+  }
+
+  .event-types-card {
+      border-radius: 18px;
+      border: none;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+      background: #ffffff;
+  }
+
+  .event-types-card .card-body {
+      padding: 18px 20px;
+  }
+
+  @media (max-width: 991.98px) {
+      .event-types-row {
+          display: block;
+      }
+      .event-types-card {
+          margin-top: 16px;
+      }
+  }
+
+  /* EVENT TYPE BADGES ------------------------------------------------------ */
+  .event-type-badge {
+      padding: 4px 10px;
+      font-size: .75rem;
+      border-radius: 999px;
+      font-weight: 600;
+  }
+  .badge-exhibition { background:#FFD166; color:#6A5300; }
+  .badge-conference { background:#06D6A0; color:#004D3A; }
+  .badge-concert    { background:#FF6B6B; color:#680000; }
+  .badge-sports     { background:#4DABF7; color:#003E73; }
+
+  /* EVENT CARDS ------------------------------------------------------------ */
+  .event-card {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+      transition: .2s ease;
+  }
+
+  .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO ------------------------------------------------------------------->
+<div class="hero-card mb-5">
+  <div class="row align-items-center">
+    <div class="col-lg-7">
+      <span class="pill mb-2">All your events in one place</span>
+      <h1 class="hero-title mb-3">Discover. Book. Experience.</h1>
+      <p class="hero-subtitle mb-4">
+        Explore exhibitions, conferences, concerts and sports — all through a single event
+        management system. Browse upcoming events, reserve your seat, or manage your own events.
+      </p>
+      <a href="{% url 'events:event_list' %}" class="btn btn-light btn-lg text-dark me-2">
+        Browse Events
+      </a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'chat_page' %}" class="btn btn-outline-light btn-lg">
+          Ask the AI Assistant
+        </a>
+      {% else %}
+        <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">
+          Get Started
+        </a>
+      {% endif %}
+    </div>
+    <div class="col-lg-5 mt-4 mt-lg-0">
+      <div class="quick-card">
+        <p class="mb-1"><strong>Quick glance</strong></p>
+        <p class="mb-0">
+          • Manage different event types<br>
+          • Capacity-aware bookings<br>
+          • Optional payments for paid events
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROLES SECTION ---------------------------------------------------------->
+<div class="row mb-5 g-4">
+  <div class="col-md-6">
+    <div class="card role-card h-100">
+      <div class="card-body">
+        <div class="role-icon">O</div>
+        <h5 class="card-title">For organizers</h5>
+        <p class="card-text">
+          Publish events, define capacity and pricing, and track bookings in one place.
+          Perfect for concerts, conferences, sports games, and more.
+        </p>
+        <ul class="mb-0">
+          <li>Create and manage events</li>
+          <li>Limit bookings based on capacity</li>
+          <li>Track payments for paid events</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card role-card h-100">
+      <div class="card-body">
+        <div class="role-icon">P</div>
+        <h5 class="card-title">For participants</h5>
+        <p class="card-text">
+          Discover upcoming events, reserve your seat for free events, or book and pay
+          for tickets securely.
+        </p>
+        <ul class="mb-0">
+          <li>Browse all published events</li>
+          <li>Book free or paid tickets</li>
+          <li>Receive clear event details</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT IS EMS + EVENT TYPES --------------------------------------------->
+<div class="row mb-4 event-types-row">
+  <div class="col-lg-8 event-types-text">
+    <h2 class="section-title mb-3">What is EMS?</h2>
+    <p>
+      EMS (Event Management System) is a centralized platform for creating, publishing and
+      attending events of different types. It supports exhibitions, academic or industry
+      conferences, concerts, and sports games with built-in booking and payment logic.
+    </p>
+  </div>
+  <div class="col-lg-4">
+    <div class="card event-types-card">
+      <div class="card-body">
+        <h6 class="mb-3 text-center">Event Types</h6>
+        <p class="mb-2 d-flex align-items-center">
+          <span class="event-type-badge badge-exhibition me-2">Exhibition</span>
+          <span class="small text-muted mb-0">announcement only</span>
+        </p>
+        <p class="mb-2 d-flex align-items-center">
+          <span class="event-type-badge badge-conference me-2">Conference</span>
+          <span class="small text-muted mb-0">free booking</span>
+        </p>
+        <p class="mb-2 d-flex align-items-center">
+          <span class="event-type-badge badge-concert me-2">Concert</span>
+          <span class="small text-muted mb-0">paid tickets</span>
+        </p>
+        <p class="mb-0 d-flex align-items-center">
+          <span class="event-type-badge badge-sports me-2">Sports game</span>
+          <span class="small text-muted mb-0">paid tickets</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UPCOMING EVENTS -------------------------------------------------------->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="section-title mb-0">Upcoming Events</h2>
+  <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary btn-sm">
+    View all events
+  </a>
+</div>
+
+{% if events %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for event in events %}
+      <div class="col">
+        <div class="card event-card h-100">
+          <div class="card-body">
+            {% if event.venue.type == "Exhibition" %}
+              <span class="event-type-badge badge-exhibition">Exhibition</span>
+            {% elif event.venue.type == "Conference" %}
+              <span class="event-type-badge badge-conference">Conference</span>
+            {% elif event.venue.type == "Concert" %}
+              <span class="event-type-badge badge-concert">Concert</span>
+            {% elif event.venue.type == "Sports" %}
+              <span class="event-type-badge badge-sports">Sports</span>
+            {% endif %}
+
+            <h5 class="mt-3 mb-1" style="color:#6C63FF;">{{ event.title }}</h5>
+
+            <p class="mb-1 text-muted">
+              {{ event.venue.name }} · {{ event.organizer.name }}
+            </p>
+
+            {% if event.description %}
+              <p class="mb-1">
+                {{ event.description|truncatechars:80 }}
+              </p>
+            {% endif %}
+
+            <p class="mb-1">
+              <strong>Starts:</strong> {{ event.start_time|date:"M d, Y H:i" }}
+            </p>
+
+            {% if event.ticket_price %}
+              <p class="mb-1">
+                <strong>Price:</strong> ${{ event.ticket_price }}
+              </p>
+            {% endif %}
+
+            <a href="{% url 'events:event_detail' event.event_id %}"
+               class="btn btn-primary btn-sm mt-2">
+              View details
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    There are no upcoming published events yet. Check back soon or create a new event from the admin panel.
+  </div>
+{% endif %}
+
+{% endblock %}

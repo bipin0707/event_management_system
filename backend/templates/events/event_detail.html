@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .event-hero {
+      border-radius: 18px;
+      padding: 24px 24px 20px 24px;
+      background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+      color: white;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+      margin-bottom: 24px;
+  }
+
+  .event-hero-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+  }
+
+  .event-type-badge {
+      padding: 4px 10px;
+      font-size: .75rem;
+      border-radius: 999px;
+      font-weight: 600;
+  }
+  .badge-exhibition { background:#FFD166; color:#6A5300; }
+  .badge-conference { background:#06D6A0; color:#004D3A; }
+  .badge-concert    { background:#FF6B6B; color:#680000; }
+  .badge-sports     { background:#4DABF7; color:#003E73; }
+
+  .status-pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: rgba(255,255,255,0.18);
+      color: #ffffff;
+  }
+
+  .event-meta-line {
+      font-size: 0.9rem;
+      opacity: 0.95;
+  }
+
+  .info-card {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+  }
+
+  .info-card h5 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #6C63FF;
+  }
+
+  .event-section-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: .5rem;
+  }
+
+  .event-label {
+      font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO ------------------------------------------------------------------->
+<div class="event-hero">
+  <div class="d-flex flex-column flex-md-row justify-content-between">
+    <div class="mb-3 mb-md-0">
+      <div class="mb-2">
+        {% if event.venue.type == "Exhibition" %}
+          <span class="event-type-badge badge-exhibition">Exhibition</span>
+        {% elif event.venue.type == "Conference" %}
+          <span class="event-type-badge badge-conference">Conference</span>
+        {% elif event.venue.type == "Concert" %}
+          <span class="event-type-badge badge-concert">Concert</span>
+        {% elif event.venue.type == "Sports" %}
+          <span class="event-type-badge badge-sports">Sports</span>
+        {% endif %}
+        <span class="status-pill ms-2">
+          {{ event.get_status_display|default:event.status }}
+        </span>
+      </div>
+      <h1 class="event-hero-title mb-2">{{ event.title }}</h1>
+      <p class="event-meta-line mb-0">
+        {{ event.venue.name }} &middot;
+        {{ event.venue.address }}
+      </p>
+    </div>
+    <div class="text-md-end">
+      <p class="mb-1 event-meta-line">
+        <strong>Starts:</strong> {{ event.start_time|date:"M d, Y H:i" }}
+      </p>
+      <p class="mb-1 event-meta-line">
+        <strong>Ends:</strong> {{ event.end_time|date:"M d, Y H:i" }}
+      </p>
+      {% if event.ticket_price %}
+        <p class="mb-0 event-meta-line">
+          <strong>Ticket price:</strong> ${{ event.ticket_price }}
+        </p>
+      {% else %}
+        <p class="mb-0 event-meta-line">
+          <strong>Ticket price:</strong> Free or not set
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- LEFT COLUMN: DETAILS -------------------------------------------------->
+  <div class="col-lg-8">
+    <div class="card info-card mb-3">
+      <div class="card-body">
+        <div class="event-section-title">About this event</div>
+        {% if event.description %}
+          <p>{{ event.description }}</p>
+        {% else %}
+          <p class="text-muted">
+            No description has been provided for this event yet.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card info-card mb-3">
+      <div class="card-body">
+        <div class="event-section-title">Schedule & details</div>
+        <p class="mb-2">
+          <span class="event-label">Starts:</span>
+          {{ event.start_time|date:"l, M d, Y H:i" }}
+        </p>
+        <p class="mb-2">
+          <span class="event-label">Ends:</span>
+          {{ event.end_time|date:"l, M d, Y H:i" }}
+        </p>
+        <p class="mb-2">
+          <span class="event-label">Venue:</span>
+          {{ event.venue.name }}{% if event.venue.type %} ({{ event.venue.type }}){% endif %}<br>
+          <span class="text-muted">{{ event.venue.address }}</span>
+        </p>
+        {% if event.capacity %}
+          <p class="mb-2">
+            <span class="event-label">Capacity:</span>
+            {{ event.capacity }}
+          </p>
+        {% endif %}
+        <p class="mb-0">
+          <span class="event-label">Event type:</span>
+          {{ event.venue.type }}
+          {% if event.venue.type == "Exhibition" %}
+            – announcement only, no booking required.
+          {% elif event.venue.type == "Conference" %}
+            – free entry, reservation required.
+          {% elif event.venue.type == "Concert" %}
+            – paid ticket booking.
+          {% elif event.venue.type == "Sports" %}
+            – paid ticket booking.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="card info-card mb-3">
+      <div class="card-body">
+        <div class="event-section-title">Organizer</div>
+        <p class="mb-1">
+          <span class="event-label">Name:</span>
+          {{ event.organizer.name }}
+        </p>
+        <p class="mb-1">
+          <span class="event-label">Email:</span>
+          <a href="mailto:{{ event.organizer.email }}">{{ event.organizer.email }}</a>
+        </p>
+        {% if event.organizer.phone %}
+          <p class="mb-0">
+            <span class="event-label">Phone:</span>
+            {{ event.organizer.phone }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: NEXT STEPS / BOOKING ----------------------------------->
+  <div class="col-lg-4">
+    <div class="card info-card mb-3">
+      <div class="card-body">
+        <div class="event-section-title">Next steps</div>
+
+        {% if event.venue.type == "Exhibition" %}
+          <p class="text-muted mb-3">
+            This exhibition is for announcement and information only.
+            No booking is required.
+          </p>
+        {% elif event.venue.type == "Conference" %}
+          <p class="text-muted mb-3">
+            This is a free event, but reservation is required to secure your seat.
+          </p>
+        {% else %}
+          <p class="text-muted mb-3">
+            This is a paid event. You can book tickets using the button below,
+            subject to available capacity.
+          </p>
+        {% endif %}
+
+        {% if event.status == "PUBLISHED" or event.status == "published" %}
+          {% if event.venue.type != "Exhibition" %}
+            <a href="{% url 'bookings:book_event' event.event_id %}"
+               class="btn btn-primary w-100 mb-2">
+              Book this event
+            </a>
+          {% endif %}
+        {% else %}
+          <p class="text-danger mb-2">
+            This event is not currently open for booking.
+          </p>
+        {% endif %}
+
+        {% if remaining_capacity is not None %}
+          <p class="mb-0 text-muted">
+            Remaining capacity: {{ remaining_capacity }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card info-card">
+      <div class="card-body">
+        <div class="event-section-title">Need help?</div>
+        <p class="mb-2">
+          If you have questions about the event, feel free to contact the organizer
+          using the details provided, or reach out to the platform administrator.
+        </p>
+        {% if user.is_authenticated %}
+          <p class="mb-0 text-muted">
+            You can also ask the <a href="{% url 'chat_page' %}">AI Assistant</a>
+            for a quick summary of this event.
+          </p>
+        {% else %}
+          <p class="mb-0 text-muted">
+            Log in to use the AI Assistant for summaries and questions.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

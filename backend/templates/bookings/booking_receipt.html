@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Receipt | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hero-card {
+    border-radius: 20px;
+    padding: 22px 26px;
+    background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  .receipt-card {
+    max-width: 720px;
+    margin: 0 auto;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+  }
+
+  .receipt-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6c757d;
+  }
+
+  .receipt-value {
+    font-weight: 500;
+  }
+
+  @media print {
+    nav, footer, .btn-print, .navbar, .alert {
+      display: none !important;
+    }
+    body {
+      background: #ffffff !important;
+    }
+    .receipt-card {
+      box-shadow: none !important;
+      border: 1px solid #dee2e6;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="hero-card mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="hero-title mb-1">Booking Receipt</h1>
+      <p class="mb-0">
+        Confirmation for your reservation in
+        <strong>{{ booking.event.title }}</strong>.
+      </p>
+    </div>
+    <div class="text-end">
+      <span class="badge bg-light text-dark">
+        #{{ booking.booking_id }}
+      </span>
+      <div class="small mt-1">
+        Booked on {{ booking.booked_at|date:"M d, Y · H:i" }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card receipt-card mb-4">
+  <div class="card-body">
+    {# Event info #}
+    <div class="mb-3">
+      <div class="receipt-label">Event</div>
+      <div class="receipt-value">
+        {{ booking.event.title }}
+      </div>
+      <div class="text-muted small">
+        {{ booking.event.venue.name }} ·
+        {{ booking.event.venue.type }}<br>
+        {{ booking.event.start_time|date:"M d, Y · H:i" }}
+      </div>
+    </div>
+
+    <hr>
+
+    {# Participant info #}
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="receipt-label">Participant</div>
+        <div class="receipt-value">
+          {{ booking.customer.name }}
+        </div>
+        <div class="text-muted small">
+          {{ booking.customer.email }}<br>
+          {% if booking.customer.phone %}
+            {{ booking.customer.phone }}
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-6 mt-3 mt-md-0">
+        <div class="receipt-label">Booking status</div>
+        <div class="receipt-value">
+          {{ booking.status }}
+        </div>
+        <div class="text-muted small">
+          Tickets: {{ booking.ticket_qty }}
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    {# Payment info #}
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="receipt-label">Ticket price</div>
+        <div class="receipt-value">
+          {% if booking.unit_price and booking.unit_price > 0 %}
+            ${{ booking.unit_price }}
+          {% else %}
+            Free
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-6 mt-3 mt-md-0">
+        <div class="receipt-label">Total amount</div>
+        <div class="receipt-value">
+          {% if booking.total_price and booking.total_price > 0 %}
+            ${{ booking.total_price }}
+          {% else %}
+            Free
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if payment %}
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="receipt-label">Payment method</div>
+          <div class="receipt-value">
+            {{ payment.method }}
+          </div>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0">
+          <div class="receipt-label">Paid at</div>
+          <div class="receipt-value">
+            {{ payment.paid_at|date:"M d, Y · H:i" }}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <hr>
+
+    <div class="small text-muted">
+      This receipt confirms your booking in the Event Management System.
+      Please keep it for your records or bring a printed copy when attending
+      the event.
+    </div>
+  </div>
+
+  <div class="card-footer d-flex justify-content-between">
+    <a href="{% url 'bookings:my_bookings' %}" class="btn btn-outline-secondary btn-sm">
+      Back to my bookings
+    </a>
+    <button type="button" class="btn btn-primary btn-sm btn-print"
+            onclick="window.print()">
+      Print receipt
+    </button>
+  </div>
+</div>
+
+{% endblock %}

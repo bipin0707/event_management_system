@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings | EMS{% endblock %}
+
+{% block content %}
+<div class="page-section">
+  <div class="page-section__inner">
+
+    <!-- HERO -->
+    <div class="hero-card hero-card--slim mb-4">
+      <div class="flex-grow-1">
+        <div class="hero-pill mb-2">
+          <span style="font-size:0.9rem;">🎫</span>
+          <span>All your tickets in one place</span>
+        </div>
+        <h1 class="hero-title mb-2">My Bookings</h1>
+        <p class="hero-subtitle mb-0">
+          View all the events you’ve reserved or purchased tickets for. Download receipts
+          or jump back to event details anytime.
+        </p>
+      </div>
+      <div class="text-end d-none d-md-flex flex-column justify-content-between">
+        <div class="hero-quick-card">
+          <div class="small fw-semibold mb-1">Summary</div>
+          <div class="small text-white-50">
+            {% if total_bookings %}
+              {{ total_bookings }} booking{{ total_bookings|pluralize }}<br />
+              Total spent: ${{ total_spent }}
+            {% else %}
+              No bookings yet. Start by exploring events.
+            {% endif %}
+          </div>
+        </div>
+        <div class="mt-2">
+          <a href="{% url 'events:event_list' %}" class="btn btn-light btn-sm text-dark">
+            Browse more events
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="row g-4">
+      <div class="col-12">
+        <h2 class="section-heading">Your recent bookings</h2>
+        <p class="text-muted-soft mb-3">
+          These are bookings tied to your logged-in account (email / user profile).
+        </p>
+      </div>
+
+      {% if bookings %}
+        {% for booking in bookings %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card-glass card-glass--soft h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <div>
+                    <div class="fw-semibold">{{ booking.event.title }}</div>
+                    <div class="small text-muted-soft">
+                      {{ booking.event.venue.name }} · {{ booking.event.venue.type }}
+                      · {{ booking.event.start_time|date:"M d, Y · H:i" }}
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <span
+                      class="badge rounded-pill
+                        {% if booking.status == 'APPROVED' %}bg-success-subtle text-success
+                        {% elif booking.status == 'PENDING' %}bg-warning-subtle text-warning
+                        {% else %}bg-secondary-subtle text-secondary{% endif %}">
+                      {{ booking.get_status_display }}
+                    </span>
+                    {% if booking.event.ticket_price %}
+                      <div class="small mt-1">
+                        <span class="badge rounded-pill bg-primary-subtle text-primary">Paid event</span>
+                      </div>
+                    {% else %}
+                      <div class="small mt-1">
+                        <span class="badge rounded-pill bg-info-subtle text-info">Free event</span>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <hr class="my-2" />
+
+                <div class="small mb-2">
+                  <div><strong>Tickets:</strong> {{ booking.ticket_qty }}</div>
+                  <div>
+                    <strong>Booked on:</strong>
+                    {{ booking.booked_at|date:"M d, Y H:i" }}
+                  </div>
+                  <div><strong>Total:</strong> ${{ booking.total_price }}</div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-2">
+                  <a
+                    href="{% url 'events:event_detail' booking.event.event_id %}"
+                    class="btn btn-outline-light btn-sm"
+                  >
+                    View event
+                  </a>
+                  <a
+                    href="{% url 'bookings:booking_receipt' booking.booking_id %}"
+                    class="btn btn-primary btn-sm"
+                  >
+                    View receipt
+                  </a>
+                  {% if booking.status != "CANCELLED" and booking.event.start_time > now %}
+                      <a href="{% url 'bookings:cancel_booking' booking.booking_id %}"
+                        class="btn btn-outline-danger btn-sm mt-2">
+                        Cancel booking
+                      </a>
+                  {% endif %}
+
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="card-glass card-glass--soft">
+            <div class="card-body text-center py-5">
+              <p class="mb-2 fw-semibold">You don’t have any bookings yet.</p>
+              <p class="text-muted-soft mb-3">
+                Browse upcoming events and reserve your spot for free or paid events.
+              </p>
+              <a href="{% url 'events:event_list' %}" class="btn btn-primary">
+                Browse events
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

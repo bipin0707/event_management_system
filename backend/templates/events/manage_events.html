@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Events | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .dashboard-hero {
+      border-radius: 18px;
+      padding: 22px 24px;
+      background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+      color: white;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+      margin-bottom: 24px;
+  }
+
+  .dashboard-hero-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+  }
+
+  .dashboard-hero-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.95;
+  }
+
+  .stat-card {
+      border-radius: 14px;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  }
+
+  .stat-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #6C63FF;
+  }
+
+  .stat-label {
+      font-size: 0.85rem;
+      color: #6c757d;
+  }
+
+  .table > :not(caption) > * > * {
+      vertical-align: middle;
+  }
+
+  .status-pill {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+  }
+
+  .status-published {
+      background: rgba(25, 135, 84, 0.08);
+      color: #198754;
+  }
+
+  .status-draft {
+      background: rgba(108, 117, 125, 0.08);
+      color: #6c757d;
+  }
+
+  .status-archived {
+      background: rgba(220, 53, 69, 0.08);
+      color: #dc3545;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- DASHBOARD HERO --------------------------------------------------------->
+<div class="dashboard-hero">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+    <div class="mb-3 mb-md-0">
+      <div class="dashboard-hero-title mb-1">
+        Organizer dashboard
+      </div>
+      <div class="dashboard-hero-subtitle">
+        Create events, manage venues, and keep track of your upcoming schedule.
+      </div>
+    </div>
+    <div class="text-md-end">
+      <a href="{% url 'events:event_create' %}" class="btn btn-light btn-sm text-dark me-2">
+        + New event
+      </a>
+      <a href="{% url 'events:venue_create' %}" class="btn btn-outline-light btn-sm">
+        + New venue
+      </a>
+    </div>
+    <div class="text-end mt-2">
+      <a href="{% url 'events:analytics_dashboard' %}" class="btn btn-outline-light btn-sm">
+          View analytics
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- STATS ROW -------------------------------------------------------------->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="stat-value">
+          {{ events|length }}
+        </div>
+        <div class="stat-label">
+          Total events
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="stat-value">
+          {% with upcoming=events|dictsort:"start_time" %}
+            {{ events|length }}
+          {% endwith %}
+        </div>
+        <div class="stat-label">
+          Upcoming events
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="stat-value">
+          {{ venues|length }}
+        </div>
+        <div class="stat-label">
+          Venues
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- EVENTS TABLE --------------------------------------------------------->
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title mb-0">Your events</h5>
+          <a href="{% url 'events:event_create' %}" class="btn btn-sm btn-primary">
+            + Add event
+          </a>
+        </div>
+
+        {% if events %}
+          <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Title</th>
+                  <th>Venue</th>
+                  <th>Starts</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in events %}
+                  <tr>
+                    <td>
+                      <strong>{{ event.title }}</strong><br>
+                      <small class="text-muted">
+                        Capacity: {{ event.capacity }}
+                        {% if event.ticket_price %}
+                          · Price: ${{ event.ticket_price }}
+                        {% else %}
+                          · Free
+                        {% endif %}
+                      </small>
+                    </td>
+                    <td>{{ event.venue.name }}</td>
+                    <td>{{ event.start_time|date:"M d, Y H:i" }}</td>
+                    <td>
+                      {% if event.status == "PUBLISHED" or event.status == "published" %}
+                        <span class="status-pill status-published">
+                          {{ event.get_status_display|default:event.status }}
+                        </span>
+                      {% elif event.status == "DRAFT" or event.status == "draft" %}
+                        <span class="status-pill status-draft">
+                          {{ event.get_status_display|default:event.status }}
+                        </span>
+                      {% else %}
+                        <span class="status-pill status-archived">
+                          {{ event.get_status_display|default:event.status }}
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end">
+                      <a href="{% url 'events:event_edit' event.event_id %}"
+                        class="btn btn-sm btn-outline-secondary me-1">
+                        Edit
+                      </a>
+                      <a href="{% url 'events:event_detail' event.event_id %}"
+                        class="btn btn-sm btn-link me-1">
+                        View
+                      </a>
+                      <a href="{% url 'bookings:organizer_event_bookings' event.event_id %}"
+                        class="btn btn-sm btn-outline-primary">
+                        Bookings
+                      </a>
+                    </td>
+
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">
+            You haven’t created any events yet. Start by clicking
+            <strong>“Add event”</strong>.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- VENUES LIST ---------------------------------------------------------->
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title mb-0">Venues</h5>
+          <a href="{% url 'events:venue_create' %}" class="btn btn-sm btn-outline-primary">
+            + Add venue
+          </a>
+        </div>
+
+        {% if venues %}
+          <ul class="list-group list-group-flush">
+            {% for venue in venues %}
+              <li class="list-group-item">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <strong>{{ venue.name }}</strong><br>
+                    <small class="text-muted">
+                      Capacity: {{ venue.capacity }}{% if venue.type %} · {{ venue.type }}{% endif %}
+                    </small>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">
+            No venues yet. Create one so you can start adding events.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

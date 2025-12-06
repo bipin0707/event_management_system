@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+env/
+
+# macOS
+.DS_Store
+
+# Django migrations cache
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# SQLite database (do NOT upload)
+db.sqlite3
+
+# IDE files
+.vscode/
+.idea/
+
+# Environment variables
+.env
+*.env
+
+# Ollama cache (if any)
+*.ollama
+

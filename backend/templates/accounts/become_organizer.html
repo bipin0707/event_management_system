@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Become an organizer | EMS{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">Become an organizer</h1>
+
+<p class="text-muted">
+  Upgrade your account to publish and manage events. Your contact details will be
+  shown on event pages so participants can reach you.
+</p>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label" for="org-name">Organizer name</label>
+        <input type="text" name="name" id="org-name" class="form-control"
+               value="{{ request.user.get_full_name|default:request.user.username }}">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="org-email">Contact email</label>
+        <input type="email" name="email" id="org-email" class="form-control"
+               value="{{ request.user.email }}">
+        <div class="form-text">
+          This email may be visible to participants on event detail pages.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="org-phone">Contact phone</label>
+        <input type="text" name="phone" id="org-phone" class="form-control">
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        Register as organizer
+      </button>
+      <a href="{% url 'home' %}" class="btn btn-link">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
