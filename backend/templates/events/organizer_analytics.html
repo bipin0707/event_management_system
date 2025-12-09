@@ -173,7 +173,7 @@
     <div class="col-md-3 mb-3">
       <div class="analytics-kpi-card h-100">
         <div class="analytics-kpi-label">Revenue</div>
-        <div class="analytics-kpi-value">${{ total_revenue }}</div>
+        <div class="analytics-kpi-value">${{ total_revenue | floatformat:2}}</div>
         <div class="analytics-kpi-sub">
           Sum of payments
         </div>
@@ -205,7 +205,7 @@
                     <td class="text-center">{{ row.bookings }}</td>
                     <td class="text-center">{{ row.tickets|default:"0" }}</td>
                     <td class="text-end">
-                      ${{ row.revenue|default:"0" }}
+                      ${{ row.revenue|default:"0" | floatformat:2}}
                     </td>
                   </tr>
                 {% endfor %}

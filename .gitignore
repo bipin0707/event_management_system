@@ -20,9 +20,7 @@ db.sqlite3
 .vscode/
 .idea/
 
-# Environment variables
-.env
-*.env
+
 
 # Ollama cache (if any)
 *.ollama
