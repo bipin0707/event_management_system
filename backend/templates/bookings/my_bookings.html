@@ -57,7 +57,19 @@
                   <div>
                     <div class="fw-semibold">{{ booking.event.title }}</div>
                     <div class="small text-muted-soft">
-                      {{ booking.event.venue.name }} · {{ booking.event.venue.type }}
+                      {{ booking.event.venue.name }}<br>
+                      {% if booking.event.venue.address %}
+                        {{ booking.event.venue.address }}<br>
+                      {% endif %}
+                      {% if booking.event.venue.city or booking.event.venue.state or booking.event.venue.zipcode %}
+                        {% if booking.event.venue.city %}{{ booking.event.venue.city }}{% endif %}
+                        {% if booking.event.venue.city and booking.event.venue.state %}, {% endif %}
+                        {% if booking.event.venue.state %}{{ booking.event.venue.state }}{% endif %}
+                        {% if booking.event.venue.zipcode %} {{ booking.event.venue.zipcode }}{% endif %}<br>
+                      {% endif %}
+                      {% if booking.event.venue.country %}
+                        {{ booking.event.venue.country }}
+                      {% endif %}
                       · {{ booking.event.start_time|date:"M d, Y · H:i" }}
                     </div>
                   </div>
@@ -92,7 +104,7 @@
                   <div><strong>Total:</strong> ${{ booking.total_price }}</div>
                 </div>
 
-                <div class="d-flex justify-content-between mt-2">
+                <div class="d-flex flex-wrap gap-2 mt-2">
                   <a
                     href="{% url 'events:event_detail' booking.event.event_id %}"
                     class="btn btn-outline-light btn-sm"
@@ -106,12 +118,11 @@
                     View receipt
                   </a>
                   {% if booking.status != "CANCELLED" and booking.event.start_time > now %}
-                      <a href="{% url 'bookings:cancel_booking' booking.booking_id %}"
-                        class="btn btn-outline-danger btn-sm mt-2">
-                        Cancel booking
-                      </a>
+                    <a href="{% url 'bookings:cancel_booking' booking.booking_id %}"
+                       class="btn btn-outline-danger btn-sm">
+                      Cancel booking
+                    </a>
                   {% endif %}
-
                 </div>
               </div>
             </div>

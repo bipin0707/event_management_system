@@ -1,0 +1,28 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Delete Payment | EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm" style="max-width: 720px; margin: 0 auto;">
+    <div class="card-body">
+      <h3 class="h5 mb-3">Delete payment</h3>
+      <p>
+        Are you sure you want to delete the payment of
+        <strong>${{ payment.amount }}</strong> for booking
+        <strong>#{{ payment.booking_id }}</strong>?
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+        <a href="{% url 'admin_payments' %}" class="btn btn-secondary">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-danger ms-2">
+          Yes, delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "admin_base.html" %}
+
+{% block title %}
+  {% if mode == "edit" %}Edit Venue (Admin) | EMS{% else %}New Venue (Admin) | EMS{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="venue-form-shell">
+    <div class="venue-form-card card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="h5 mb-1">
+            {% if mode == "edit" %}Edit venue{% else %}Create new venue{% endif %}
+          </h2>
+        </div>
+        <div>
+          <a href="{% url 'admin_venues' %}" class="btn btn-outline-secondary btn-sm">
+            Back to venues
+          </a>
+        </div>
+      </div>
+
+      <form method="post" class="card-body" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">
+              {{ field.label }}
+              {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+              <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+            {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-end gap-2">
+          <a href="{% url 'admin_venues' %}" class="btn btn-outline-secondary">
+            Cancel
+          </a>
+          <button type="submit" class="btn btn-primary">
+            {% if mode == "edit" %}Save changes{% else %}Create venue{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -5,41 +5,70 @@
 {% block content %}
 <h1 class="h4 mb-3">Become an organizer</h1>
 
-<p class="text-muted">
-  Upgrade your account to publish and manage events. Your contact details will be
-  shown on event pages so participants can reach you.
-</p>
-
-<div class="card shadow-sm">
-  <div class="card-body">
-    <form method="post">
-      {% csrf_token %}
-
-      <div class="mb-3">
-        <label class="form-label" for="org-name">Organizer name</label>
-        <input type="text" name="name" id="org-name" class="form-control"
-               value="{{ request.user.get_full_name|default:request.user.username }}">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label" for="org-email">Contact email</label>
-        <input type="email" name="email" id="org-email" class="form-control"
-               value="{{ request.user.email }}">
-        <div class="form-text">
-          This email may be visible to participants on event detail pages.
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label" for="org-phone">Contact phone</label>
-        <input type="text" name="phone" id="org-phone" class="form-control">
-      </div>
-
-      <button type="submit" class="btn btn-primary">
-        Register as organizer
-      </button>
-      <a href="{% url 'home' %}" class="btn btn-link">Cancel</a>
-    </form>
+{% if pending %}
+  <div class="alert alert-info">
+    Your organizer request is <strong>pending admin approval</strong>.<br>
+    Organizer name: <strong>{{ organizer.name }}</strong><br>
+    Email: {{ organizer.email }}
   </div>
-</div>
+  <p class="text-muted">
+    Once an administrator approves your request, you will be able to access the
+    <strong>Organizer dashboard</strong> and create/manage events.
+  </p>
+{% else %}
+  <p class="text-muted">
+    Upgrade your account to publish and manage events. Your contact details will be
+    shown on event pages so participants can reach you. An administrator must approve
+    your request before you become an organizer.
+  </p>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label" for="org-name">Organizer name</label>
+          <input
+            type="text"
+            name="name"
+            id="org-name"
+            class="form-control"
+            value="{{ prefill_name|default:request.user.get_full_name|default:request.user.username }}"
+          >
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="org-email">Contact email</label>
+          <input
+            type="email"
+            name="email"
+            id="org-email"
+            class="form-control"
+            value="{{ prefill_email|default:request.user.email }}"
+          >
+          <div class="form-text">
+            This email may be visible to participants on event detail pages.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="org-phone">Contact phone</label>
+          <input
+            type="text"
+            name="phone"
+            id="org-phone"
+            class="form-control"
+            value="{{ prefill_phone }}"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          Submit organizer request
+        </button>
+        <a href="{% url 'home' %}" class="btn btn-link">Cancel</a>
+      </form>
+    </div>
+  </div>
+{% endif %}
 {% endblock %}

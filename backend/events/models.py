@@ -5,8 +5,14 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 
-# Organizer Table
+# Organizer Table (unchanged except for status/created_at we added earlier)
 class Organizer(models.Model):
+    STATUS_CHOICES = [
+        ("PENDING", "Pending"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+    ]
+
     organizer_id = models.AutoField(primary_key=True)
 
     user = models.OneToOneField(
@@ -22,35 +28,42 @@ class Organizer(models.Model):
     email = models.EmailField(max_length=150, unique=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
 
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="PENDING",
+        help_text="Organizer must be APPROVED by an admin before managing events.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
     class Meta:
         db_table = "ORGANIZER"
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_status_display()})"
 
 
 # Venue Table
 class Venue(models.Model):
-    VENUE_TYPE_CHOICES = [
-        ("Exhibition", "Exhibition"),
-        ("Conference", "Conference"),
-        ("Concert", "Concert"),
-        ("Sports", "Sports"),
-    ]
-
     venue_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=120)
-    address = models.CharField(max_length=200)
+
+    # Address fields (venue-level, NOT event type anymore)
+    address = models.CharField(max_length=255)  # street
+    city = models.CharField(max_length=100, null=True, blank=True)
+    state = models.CharField(max_length=100, null=True, blank=True)
+    zipcode = models.CharField(max_length=20, null=True, blank=True)
+    country = models.CharField(max_length=100, null=True, blank=True)
+
     capacity = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(50000)]
+        validators=[MinValueValidator(1), MaxValueValidator(50000)]
     )
-    type = models.CharField(max_length=50, choices=VENUE_TYPE_CHOICES)
 
     class Meta:
         db_table = "VENUE"
 
     def __str__(self):
-        return f"{self.name} ({self.type})"
+        return self.name
 
 
 # Event Table
@@ -59,6 +72,13 @@ class Event(models.Model):
         ("DRAFT", "Draft"),
         ("PUBLISHED", "Published"),
         ("CANCELLED", "Cancelled"),
+    ]
+
+    EVENT_TYPE_CHOICES = [
+        ("EXHIBITION", "Exhibition"),
+        ("CONFERENCE", "Conference"),
+        ("CONCERT", "Concert"),
+        ("SPORTS", "Sports Game"),
     ]
 
     event_id = models.AutoField(primary_key=True)
@@ -72,6 +92,14 @@ class Event(models.Model):
         on_delete=models.PROTECT,
         related_name="events",
     )
+
+    event_type = models.CharField(
+        max_length=20,
+        choices=EVENT_TYPE_CHOICES,
+        default="EXHIBITION",
+        help_text="Determines whether the event is free/paid and how bookings work.",
+    )
+
     title = models.CharField(max_length=150)
     description = models.TextField(
         blank=True,
@@ -80,11 +108,15 @@ class Event(models.Model):
     )
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+
+    # Capacity is event-specific now (can differ from venue capacity if needed)
     capacity = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(50000)],
+        validators=[MinValueValidator(1), MaxValueValidator(50000)],
         blank=True,
         null=True,
+        help_text="Required for conferences and paid events. Ignored for exhibitions.",
     )
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
 
     ticket_price = models.DecimalField(
@@ -94,7 +126,7 @@ class Event(models.Model):
         blank=True,
         help_text=(
             "Required for Concert and Sports events. "
-            "Leave blank for Conferences and Exhibitions."
+            "Must be zero or blank for Conferences and Exhibitions."
         ),
     )
 
@@ -103,29 +135,41 @@ class Event(models.Model):
         Enforce:
         - start_time is not in the past (using current LOCAL timezone)
         - end_time is strictly after start_time
+        - type-specific rules for capacity and ticket_price
         """
         super().clean()
 
-        # If datetimes are missing (e.g. partially filled admin form), skip
-        if not self.start_time or not self.end_time:
-            return
-
-        # Current local time according to Django's active timezone
-        now_local = timezone.localtime(timezone.now())
-
-        # Convert event times to the same local timezone
-        start_local = timezone.localtime(self.start_time)
-        end_local = timezone.localtime(self.end_time)
-
         errors = {}
 
-        # Start time cannot be in the past
-        if start_local < now_local:
-            errors["start_time"] = "Start time cannot be in the past."
+        # Datetime checks
+        if self.start_time and self.end_time:
+            now_local = timezone.localtime(timezone.now())
+            start_local = timezone.localtime(self.start_time)
+            end_local = timezone.localtime(self.end_time)
 
-        # End time must be after start time
-        if end_local <= start_local:
-            errors["end_time"] = "End time must be after the start time."
+            if start_local < now_local:
+                errors["start_time"] = "Start time cannot be in the past."
+
+            if end_local <= start_local:
+                errors["end_time"] = "End time must be after the start time."
+
+        # Type-specific rules
+        if self.event_type == "EXHIBITION":
+            # No capacity / no price required
+            if self.ticket_price not in (None, 0):
+                errors["ticket_price"] = "Exhibitions must not have a ticket price."
+        elif self.event_type == "CONFERENCE":
+            # Must be free, but capacity is required
+            if not self.capacity:
+                errors["capacity"] = "Capacity is required for conferences."
+            if self.ticket_price not in (None, 0) and self.ticket_price != 0:
+                errors["ticket_price"] = "Conferences must be free (ticket price 0)."
+        elif self.event_type in ("CONCERT", "SPORTS"):
+            # Paid events: capacity + positive ticket price are required
+            if not self.capacity:
+                errors["capacity"] = "Capacity is required for paid events."
+            if self.ticket_price is None or self.ticket_price <= 0:
+                errors["ticket_price"] = "Ticket price must be greater than 0 for paid events."
 
         if errors:
             raise ValidationError(errors)

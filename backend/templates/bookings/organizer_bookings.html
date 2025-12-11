@@ -114,21 +114,21 @@
                 <td>{{ booking.ticket_qty }}</td>
                 <td>${{ booking.total_price }}</td>
                 <td>
-                  {% if booking.status|lower == "confirmed" %}
+                  {% if booking.status == "APPROVED" %}
                     <span class="status-pill status-confirmed">
-                      {{ booking.status }}
+                      {{ booking.get_status_display }}
                     </span>
-                  {% elif booking.status|lower == "pending" %}
+                  {% elif booking.status == "PENDING" %}
                     <span class="status-pill status-pending">
-                      {{ booking.status }}
+                      {{ booking.get_status_display }}
                     </span>
                   {% else %}
                     <span class="status-pill status-cancelled">
-                      {{ booking.status }}
+                      {{ booking.get_status_display }}
                     </span>
                   {% endif %}
                 </td>
-                <td>{{ booking.booked_at|date:"M d, Y H:i" }}</td>
+                <td>{{ booking.booked_at|date:"M d, Y g:i A" }}</td>
               </tr>
             {% endfor %}
           </tbody>

@@ -1,0 +1,62 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Payments (Admin) | EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">Payments</h2>
+    <div>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-outline-secondary me-2">
+        Back to admin dashboard
+      </a>
+      <a href="{% url 'admin_payment_create' %}" class="btn btn-sm btn-primary">
+        + New payment
+      </a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% if payments %}
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Booking</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Paid at</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for payment in payments %}
+                <tr>
+                  <td>#{{ payment.payment_id }}</td>
+                  <td>#{{ payment.booking_id }}</td>
+                  <td>{{ payment.customer.name }}<br>
+                      <small class="text-muted">{{ payment.customer.email }}</small></td>
+                  <td>${{ payment.amount }}</td>
+                  <td>{{ payment.method }}</td>
+                  <td>{{ payment.paid_at|date:"M d, Y h:i A" }}</td>
+                  <td class="text-end">
+                    <a href="{% url 'admin_payment_edit' payment.payment_id %}"
+                       class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                    <a href="{% url 'admin_payment_delete' payment.payment_id %}"
+                       class="btn btn-sm btn-outline-danger">Delete</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No payments recorded.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

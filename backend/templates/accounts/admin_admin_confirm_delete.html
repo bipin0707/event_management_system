@@ -1,0 +1,33 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Delete Admin | EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 class="h5 mb-3">Delete admin user</h1>
+
+      <p>
+        Are you sure you want to delete admin user
+        <strong>{{ admin_obj.username }}</strong> ({{ admin_obj.email }})?
+      </p>
+
+      <div class="alert alert-warning">
+        This action cannot be undone. The admin will no longer be able to log into
+        the admin portal.
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <a href="{% url 'admin_admins' %}" class="btn btn-secondary">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-danger ms-2">
+          Yes, delete admin
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

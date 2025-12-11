@@ -1,0 +1,116 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Customers (Admin) | EMS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .admin-hero {
+      border-radius: 18px;
+      padding: 22px 24px;
+      background: linear-gradient(135deg, #6C63FF 0%, #00B4D8 100%);
+      color: white;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+      margin-bottom: 24px;
+  }
+  .admin-hero-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+  }
+  .admin-hero-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.95;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="admin-hero">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+    <div class="mb-3 mb-md-0">
+      <div class="admin-hero-title mb-1">
+        Customers
+      </div>
+      <div class="admin-hero-subtitle">
+        Manage all participants registered in the system, including profile and full
+        contact information.
+      </div>
+    </div>
+    <div class="text-md-end">
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-light btn-sm text-dark me-2">
+        Back to admin dashboard
+      </a>
+      <a href="{% url 'admin_customer_create' %}" class="btn btn-outline-light btn-sm">
+        + New customer
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if customers %}
+      <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>City</th>
+              <th>State</th>
+              <th>Zip</th>
+              <th>Country</th>
+              <th>Phone</th>
+              <th>DOB</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for customer in customers %}
+              <tr>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.email }}</td>
+                <td>
+                  {% if customer.address %}
+                    {{ customer.address }}
+                  {% else %}
+                    <span class="text-muted small">—</span>
+                  {% endif %}
+                </td>
+                <td>{{ customer.city|default_if_none:"—" }}</td>
+                <td>{{ customer.state|default_if_none:"—" }}</td>
+                <td>{{ customer.zipcode|default_if_none:"—" }}</td>
+                <td>{{ customer.country|default_if_none:"—" }}</td>
+                <td>{{ customer.phone|default_if_none:"—" }}</td>
+                <td>
+                  {% if customer.dob %}
+                    {{ customer.dob|date:"M d, Y" }}
+                  {% else %}
+                    <span class="text-muted small">—</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'admin_customer_edit' customer.customer_id %}"
+                     class="btn btn-sm btn-outline-secondary me-1">
+                    Edit
+                  </a>
+                  <a href="{% url 'admin_customer_delete' customer.customer_id %}"
+                     class="btn btn-sm btn-outline-danger">
+                    Delete
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">
+        No customers found yet.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

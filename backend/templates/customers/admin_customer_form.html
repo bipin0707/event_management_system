@@ -1,0 +1,113 @@
+{% extends "admin_base.html" %}
+
+{% block title %}
+  {% if mode == "edit" %}Edit Customer | EMS{% else %}New Customer | EMS{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .customer-form-shell {
+      max-width: 800px;
+      margin: 0 auto;
+  }
+  .customer-form-card {
+      border-radius: 26px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 26px 60px rgba(15, 23, 42, 0.8);
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.55), #020617);
+      color: #e5e7eb;
+  }
+  .customer-form-header {
+      padding: 18px 24px;
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      color: #f9fafb;
+  }
+  .customer-form-body {
+      padding: 22px 24px 22px;
+  }
+  .customer-form-body input {
+      background-color: rgba(15, 23, 42, 0.9) !important;
+      border: 1px solid rgba(148, 163, 184, 0.6) !important;
+      color: #f9fafb !important;
+      border-radius: 12px;
+  }
+  .customer-form-body input:focus {
+      outline: none;
+      box-shadow: 0 0 0 1px #0ea5e9;
+      border-color: #0ea5e9 !important;
+  }
+  .customer-form-footer {
+      padding: 16px 24px 22px;
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="customer-form-shell">
+    <div class="customer-form-card">
+      <div class="customer-form-header d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="h5 mb-1">
+            {% if mode == "edit" %}Edit customer{% else %}Create customer{% endif %}
+          </h2>
+          <p class="mb-0" style="font-size:0.9rem;">
+            Manage participant identity and contact details stored in the CUSTOMER table.
+          </p>
+        </div>
+        <div>
+          <a href="{% url 'admin_customers' %}" class="btn btn-outline-light btn-sm">
+            Back to customers
+          </a>
+        </div>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="customer-form-body">
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {{ field }}
+              {% if field.help_text %}
+                <div class="form-text text-muted">{{ field.help_text }}</div>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="customer-form-footer">
+          <small class="text-muted">
+            Changes apply only to this customer record in the database.
+          </small>
+          <div>
+            <a href="{% url 'admin_customers' %}" class="btn btn-outline-light me-2">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              {% if mode == "edit" %}Save changes{% else %}Create customer{% endif %}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

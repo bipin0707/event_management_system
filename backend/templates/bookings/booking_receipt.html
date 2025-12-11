@@ -82,8 +82,18 @@
         {{ booking.event.title }}
       </div>
       <div class="text-muted small">
-        {{ booking.event.venue.name }} ·
-        {{ booking.event.venue.type }}<br>
+        {{ booking.event.venue.name }}
+        · {{ booking.event.get_event_type_display }}<br>
+        {% if booking.event.venue.address %}
+          {{ booking.event.venue.address }}<br>
+        {% endif %}
+        {% if booking.event.venue.city or booking.event.venue.state or booking.event.venue.zipcode %}
+          {% if booking.event.venue.city %}{{ booking.event.venue.city }}{% endif %}
+          {% if booking.event.venue.city and booking.event.venue.state %}, {% endif %}
+          {% if booking.event.venue.state %}{{ booking.event.venue.state }}{% endif %}
+          {% if booking.event.venue.zipcode %} {{ booking.event.venue.zipcode }}{% endif %}<br>
+        {% endif %}
+        {% if booking.event.venue.country %}{{ booking.event.venue.country }}<br>{% endif %}
         {{ booking.event.start_time|date:"M d, Y · H:i" }}
       </div>
     </div>
@@ -100,7 +110,21 @@
         <div class="text-muted small">
           {{ booking.customer.email }}<br>
           {% if booking.customer.phone %}
-            {{ booking.customer.phone }}
+            {{ booking.customer.phone }}<br>
+          {% endif %}
+          {% if booking.customer.dob %}
+            DOB: {{ booking.customer.dob|date:"M d, Y" }}<br>
+          {% endif %}
+          {% if booking.customer.address or booking.customer.city or booking.customer.state
+                or booking.customer.zipcode or booking.customer.country %}
+            {% if booking.customer.address %}{{ booking.customer.address }}<br>{% endif %}
+            {% if booking.customer.city or booking.customer.state or booking.customer.zipcode %}
+              {% if booking.customer.city %}{{ booking.customer.city }}{% endif %}
+              {% if booking.customer.city and booking.customer.state %}, {% endif %}
+              {% if booking.customer.state %}{{ booking.customer.state }}{% endif %}
+              {% if booking.customer.zipcode %} {{ booking.customer.zipcode }}{% endif %}<br>
+            {% endif %}
+            {% if booking.customer.country %}{{ booking.customer.country }}{% endif %}
           {% endif %}
         </div>
       </div>
@@ -146,8 +170,13 @@
         <div class="col-md-6">
           <div class="receipt-label">Payment method</div>
           <div class="receipt-value">
-            {{ payment.method }}
+            {{ payment.get_method_display }}
           </div>
+          {% if payment.card_details %}
+            <div class="text-muted small">
+              {{ payment.card_details }}
+            </div>
+          {% endif %}
         </div>
         <div class="col-md-6 mt-3 mt-md-0">
           <div class="receipt-label">Paid at</div>

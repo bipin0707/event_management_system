@@ -9,7 +9,7 @@
   <p>Are you sure you want to cancel your booking for:</p>
 
   <h4>{{ booking.event.title }}</h4>
-  <p><strong>Date:</strong> {{ booking.event.start_time|date:"M d, Y H:i" }}</p>
+  <p><strong>Date:</strong> {{ booking.event.start_time|date:"M d, Y g:i A" }}</p>
   <p><strong>Venue:</strong> {{ booking.event.venue.name }}</p>
   <p><strong>Tickets:</strong> {{ booking.ticket_qty }}</p>
   <p><strong>Total paid:</strong> ${{ booking.total_price }}</p>

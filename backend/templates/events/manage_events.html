@@ -104,7 +104,7 @@
     <div class="card stat-card">
       <div class="card-body">
         <div class="stat-value">
-          {{ events|length }}
+          {{ total_events|default:events|length }}
         </div>
         <div class="stat-label">
           Total events
@@ -116,9 +116,7 @@
     <div class="card stat-card">
       <div class="card-body">
         <div class="stat-value">
-          {% with upcoming=events|dictsort:"start_time" %}
-            {{ events|length }}
-          {% endwith %}
+          {{ upcoming_events|default:events|length }}
         </div>
         <div class="stat-label">
           Upcoming events
@@ -170,16 +168,30 @@
                     <td>
                       <strong>{{ event.title }}</strong><br>
                       <small class="text-muted">
-                        Capacity: {{ event.capacity }}
-                        {% if event.ticket_price %}
-                          · Price: ${{ event.ticket_price }}
-                        {% else %}
-                          · Free
+                        {% if event.capacity %}
+                          Capacity: {{ event.capacity }}
+                        {% endif %}
+                        {% if event.event_type == "CONCERT" or event.event_type == "SPORTS" %}
+                          {% if event.ticket_price %}
+                            · Price: ${{ event.ticket_price }}
+                          {% else %}
+                            · Price not set
+                          {% endif %}
+                        {% elif event.event_type == "CONFERENCE" %}
+                          · Free (reservation required)
+                        {% elif event.event_type == "EXHIBITION" %}
+                          · Exhibition (no booking)
                         {% endif %}
                       </small>
                     </td>
-                    <td>{{ event.venue.name }}</td>
-                    <td>{{ event.start_time|date:"M d, Y H:i" }}</td>
+                    <td>
+                      {{ event.venue.name }}<br>
+                      <small class="text-muted">
+                        {{ event.venue.city|default:event.venue.address }}
+                        {% if event.venue.state %}, {{ event.venue.state }}{% endif %}
+                      </small>
+                    </td>
+                    <td>{{ event.start_time|date:"M d, Y g:i A" }}</td>
                     <td>
                       {% if event.status == "PUBLISHED" or event.status == "published" %}
                         <span class="status-pill status-published">
@@ -244,7 +256,16 @@
                   <div>
                     <strong>{{ venue.name }}</strong><br>
                     <small class="text-muted">
-                      Capacity: {{ venue.capacity }}{% if venue.type %} · {{ venue.type }}{% endif %}
+                      Capacity: {{ venue.capacity }}
+                      {% if venue.city or venue.state %}
+                        · {{ venue.city }}
+                        {% if venue.state %}, {{ venue.state }}{% endif %}
+                      {% endif %}
+                    </small><br>
+                    <small class="text-muted">
+                      {{ venue.address }}
+                      {% if venue.zipcode %}, {{ venue.zipcode }}{% endif %}
+                      {% if venue.country %} · {{ venue.country }}{% endif %}
                     </small>
                   </div>
                 </div>

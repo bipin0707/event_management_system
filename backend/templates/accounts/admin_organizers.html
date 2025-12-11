@@ -1,0 +1,126 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Organizer Management | EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h4 mb-1">Organizer Management</h1>
+      <p class="text-muted mb-0">
+        Review pending organizer requests and manage existing organizers.
+      </p>
+    </div>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+      ← Back to dashboard
+    </a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body py-2">
+          <div class="small text-muted">Pending</div>
+          <div class="h4 mb-0">{{ stats.pending }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body py-2">
+          <div class="small text-muted">Approved</div>
+          <div class="h4 mb-0">{{ stats.approved }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body py-2">
+          <div class="small text-muted">Rejected</div>
+          <div class="h4 mb-0">{{ stats.rejected }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">Organizers</h5>
+        <div>
+          <a href="?status=" class="btn btn-sm btn-outline-secondary{% if not status_filter %} active{% endif %}">All</a>
+          <a href="?status=PENDING" class="btn btn-sm btn-outline-warning{% if status_filter == 'PENDING' %} active{% endif %}">Pending</a>
+          <a href="?status=APPROVED" class="btn btn-sm btn-outline-success{% if status_filter == 'APPROVED' %} active{% endif %}">Approved</a>
+          <a href="?status=REJECTED" class="btn btn-sm btn-outline-danger{% if status_filter == 'REJECTED' %} active{% endif %}">Rejected</a>
+        </div>
+      </div>
+
+      {% if organizers %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>User account</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for org in organizers %}
+                <tr>
+                  <td>{{ org.name }}</td>
+                  <td>{{ org.email }}</td>
+                  <td>
+                    {% if org.user %}
+                      {{ org.user.username }}
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if org.status == "PENDING" %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif org.status == "APPROVED" %}
+                      <span class="badge bg-success">Approved</span>
+                    {% else %}
+                      <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    {% if org.status == "PENDING" %}
+                      <form method="post" action="{% url 'admin_organizer_approve' org.organizer_id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                      </form>
+                      <form method="post" action="{% url 'admin_organizer_reject' org.organizer_id %}" class="d-inline ms-1">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                      </form>
+                    {% elif org.status == "APPROVED" %}
+                      <form method="post" action="{% url 'admin_organizer_reject' org.organizer_id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Set rejected</button>
+                      </form>
+                    {% elif org.status == "REJECTED" %}
+                      <form method="post" action="{% url 'admin_organizer_approve' org.organizer_id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-success">Re-approve</button>
+                      </form>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">
+          No organizers found.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

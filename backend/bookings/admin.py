@@ -14,7 +14,8 @@ class BookingAdmin(admin.ModelAdmin):
         "status",
         "booked_at",
     )
-    list_filter = ("status", "event__venue__type")
+    # Remove event__venue__type – that field no longer exists
+    list_filter = ("status",)
     search_fields = ("event__title", "customer__name", "customer__email")
 
 

@@ -118,20 +118,34 @@
         {% csrf_token %}
         <div class="event-form-body">
           {% for field in form %}
-            <div class="mb-3">
-              <label class="event-form-label" for="{{ field.id_for_label }}">
-                {{ field.label }}
-                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-              </label>
-              {{ field }}
-              {% if field.help_text %}
-                <div class="event-form-help">{{ field.help_text }}</div>
-              {% endif %}
-              {% for error in field.errors %}
-                <div class="text-danger small mt-1">{{ error }}</div>
-              {% endfor %}
-            </div>
+            {# Give capacity and ticket_price special hooks #}
+            {% if field.name == "capacity" %}
+              <div class="mb-3 js-capacity-field">
+            {% elif field.name == "ticket_price" %}
+              <div class="mb-3 js-price-field">
+            {% else %}
+              <div class="mb-3">
+            {% endif %}
+                <label class="event-form-label" for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                  {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                  <div class="event-form-help">{{ field.help_text }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                  <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+              </div>
           {% endfor %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+        </div>
 
           {% if form.non_field_errors %}
             <div class="alert alert-danger">
@@ -157,4 +171,42 @@
     </div>
   </div>
 </div>
+<script>
+  (function () {
+    const typeSelect = document.getElementById("id_event_type");
+    const capacityGroup = document.querySelector(".js-capacity-field");
+    const priceGroup = document.querySelector(".js-price-field");
+
+    function updateVisibility() {
+      if (!typeSelect) return;
+      const value = typeSelect.value;  // "EXHIBITION", "CONFERENCE", "CONCERT", "SPORTS"
+
+      // Default: hide nothing
+      if (capacityGroup) capacityGroup.style.display = "";
+      if (priceGroup) capacityGroup && (priceGroup.style.display = "");
+
+      if (value === "EXHIBITION") {
+        // Exhibition: no capacity, no price
+        if (capacityGroup) capacityGroup.style.display = "none";
+        if (priceGroup) priceGroup.style.display = "none";
+      } else if (value === "CONFERENCE") {
+        // Conference: capacity yes, price NO
+        if (capacityGroup) capacityGroup.style.display = "";
+        if (priceGroup) priceGroup.style.display = "none";
+      } else {
+        // CONCERT or SPORTS: both capacity and price
+        if (capacityGroup) capacityGroup.style.display = "";
+        if (priceGroup) priceGroup.style.display = "";
+      }
+    }
+
+    if (typeSelect) {
+      typeSelect.addEventListener("change", updateVisibility);
+      // Run once on page load so edit forms reflect current value
+      updateVisibility();
+    }
+  })();
+</script>
 {% endblock %}
+
+

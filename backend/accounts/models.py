@@ -63,7 +63,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     # Just ensure profile exists (in case of superuser created via CLI)
     UserProfile.objects.get_or_create(user=instance)
-
-
-
-

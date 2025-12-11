@@ -1,0 +1,151 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin Dashboard | EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- HEADER -------------------------------------------------------------->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h4 mb-1">Admin Dashboard</h1>
+      <p class="text-muted mb-0">
+        Logged in as <strong>{{ admin.username }}</strong> ({{ admin.role }}).
+        Use this panel to manage organizers, events, venues, customers, bookings and payments.
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'admin_logout' %}" class="btn btn-outline-danger btn-sm">
+        Log out
+      </a>
+    </div>
+  </div>
+
+  <!-- STATS CARDS --------------------------------------------------------->
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="small text-muted mb-1">Events</div>
+          <div class="h3 mb-0">{{ stats.event_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="small text-muted mb-1">Organizers</div>
+          <div class="h3 mb-0">{{ stats.organizer_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="small text-muted mb-1">Venues</div>
+          <div class="h3 mb-0">{{ stats.venue_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="small text-muted mb-1">Customers</div>
+          <div class="h3 mb-0">{{ stats.customer_count }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="small text-muted mb-1">Bookings</div>
+          <div class="h3 mb-0">{{ stats.booking_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100 border-warning">
+        <div class="card-body">
+          <div class="small text-muted mb-1">Pending organizer requests</div>
+          <div class="h3 mb-0 text-warning">{{ stats.pending_organizers }}</div>
+        </div>
+      </div>
+    </div>
+     <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="small text-muted mb-1">Admins</div>
+          <div class="h3 mb-0">{{ stats.admin_count }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS ------------------------------------------------------->
+  <!-- QUICK ACTIONS ------------------------------------------------------->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Quick actions</h5>
+      <div class="row g-2">
+
+        <!-- Organizers -->
+        <div class="col-md-4 col-lg-2">
+          <a href="{% url 'admin_organizers' %}" class="btn btn-outline-primary w-100">
+            Review organizers
+            {% if stats.pending_organizers %}
+              <span class="badge bg-warning text-dark ms-1">
+                {{ stats.pending_organizers }} pending
+              </span>
+            {% endif %}
+          </a>
+        </div>
+
+        <!-- Events -->
+        <div class="col-md-4 col-lg-2">
+          <a href="{% url 'admin_events' %}" class="btn btn-outline-secondary w-100">
+            Manage events
+          </a>
+        </div>
+
+        <!-- Venues -->
+        <div class="col-md-4 col-lg-2">
+          <a href="{% url 'admin_venues' %}" class="btn btn-outline-secondary w-100">
+            Manage venues
+          </a>
+        </div>
+
+        <!-- Customers -->
+        <div class="col-md-4 col-lg-2">
+          <a href="{% url 'admin_customers' %}" class="btn btn-outline-secondary w-100">
+            Manage customers
+          </a>
+        </div>
+
+        <!-- Bookings -->
+        <div class="col-md-4 col-lg-2">
+          <a href="{% url 'admin_bookings' %}" class="btn btn-outline-secondary w-100">
+            Manage bookings
+          </a>
+        </div>
+
+        <!-- Payments -->
+        <div class="col-md-4 col-lg-2">
+          <a href="{% url 'admin_payments' %}" class="btn btn-outline-secondary w-100">
+            Manage payments
+          </a>
+        </div>
+                <div class="col-md-4">
+          <a href="{% url 'admin_admins' %}" class="btn btn-outline-secondary w-100">
+            Manage admins
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

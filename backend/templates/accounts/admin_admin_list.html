@@ -1,0 +1,68 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Manage Admins | EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h4 mb-1">Admin users</h1>
+      <p class="text-muted mb-0">
+        Manage accounts stored in the <code>ADMIN</code> table. Only admins with
+        role <strong>ADMIN</strong> can access this page.
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm me-2">
+        Back to dashboard
+      </a>
+      <a href="{% url 'admin_admin_create' %}" class="btn btn-primary btn-sm">
+        + Add admin
+      </a>
+    </div>
+  </div>
+
+  {% if admins %}
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in admins %}
+                <tr>
+                  <td>{{ a.username }}</td>
+                  <td>{{ a.email }}</td>
+                  <td>{{ a.role }}</td>
+                  <td class="text-end">
+                    <a href="{% url 'admin_admin_edit' a.admin_id %}"
+                       class="btn btn-sm btn-outline-secondary me-1">
+                      Edit
+                    </a>
+                    <a href="{% url 'admin_admin_delete' a.admin_id %}"
+                       class="btn btn-sm btn-outline-danger">
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      There are no admin users yet.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

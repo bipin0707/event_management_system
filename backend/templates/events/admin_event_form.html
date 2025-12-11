@@ -1,0 +1,207 @@
+{% extends "admin_base.html" %}
+
+{% block title %}
+  {% if mode == "edit" %}Admin: Edit Event | EMS{% else %}Admin: New Event | EMS{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .event-form-shell {
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+
+  .event-form-card {
+    border-radius: 26px;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 26px 60px rgba(15, 23, 42, 0.8);
+    background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.55), #020617);
+    color: #e5e7eb;
+  }
+
+  .event-form-header {
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    color: #f9fafb;
+  }
+
+  .event-form-header h2 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+
+  .event-form-header p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.92;
+  }
+
+  .event-form-body {
+    padding: 22px 24px 22px;
+  }
+
+  .event-form-label {
+    font-weight: 500;
+    font-size: 0.88rem;
+    color: #e5e7eb;
+  }
+
+  .event-form-help {
+    font-size: 0.78rem;
+    color: #9ca3af;
+  }
+
+  .event-form-body input,
+  .event-form-body select,
+  .event-form-body textarea {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(148, 163, 184, 0.6) !important;
+    color: #f9fafb !important;
+    border-radius: 12px;
+  }
+
+  .event-form-body input:focus,
+  .event-form-body select:focus,
+  .event-form-body textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px #4f46e5;
+    border-color: #4f46e5 !important;
+  }
+
+  .event-form-footer {
+    padding: 16px 24px 22px;
+    border-top: 1px solid rgba(31, 41, 55, 0.9);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .event-form-footer .text-muted {
+    color: white !important;
+  }
+
+  .event-form-actions .btn {
+    border-radius: 999px;
+    padding-inline: 22px;
+  }
+
+  body.light-mode .event-form-card {
+    background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.55), #020617);
+    color: #e5e7eb;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="event-form-shell">
+    <div class="event-form-card">
+      <div class="event-form-header d-flex justify-content-between align-items-center">
+        <div>
+          <h2>
+            {% if mode == "edit" %}
+              Admin · Edit event: {{ event.title }}
+            {% else %}
+              Admin · Create a new event
+            {% endif %}
+          </h2>
+          <p>
+            Set organizer, venue, type, schedule, capacity and pricing. Past dates are not allowed.
+          </p>
+        </div>
+        <div>
+          <a href="{% url 'admin_events' %}" class="btn btn-outline-light btn-sm">
+            Back to Events
+          </a>
+        </div>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="event-form-body">
+          {% for field in form %}
+            {# capacity & ticket_price get special containers for JS #}
+            {% if field.name == "capacity" %}
+              <div class="mb-3 js-capacity-field">
+            {% elif field.name == "ticket_price" %}
+              <div class="mb-3 js-price-field">
+            {% else %}
+              <div class="mb-3">
+            {% endif %}
+                <label class="event-form-label" for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                  {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                  <div class="event-form-help">{{ field.help_text }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                  <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+              </div>
+          {% endfor %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="event-form-footer">
+          <small class="text-muted">
+            Admin changes apply immediately. You can always return and adjust event details.
+          </small>
+          <div class="event-form-actions">
+            <a href="{% url 'admin_events' %}" class="btn btn-outline-light me-2">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              {% if mode == "edit" %}Save changes{% else %}Create event{% endif %}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const typeSelect = document.getElementById("id_event_type");
+    const capacityGroup = document.querySelector(".js-capacity-field");
+    const priceGroup = document.querySelector(".js-price-field");
+
+    function updateVisibility() {
+      if (!typeSelect) return;
+      const value = typeSelect.value; // "EXHIBITION", "CONFERENCE", "CONCERT", "SPORTS"
+
+      // default: show both
+      if (capacityGroup) capacityGroup.style.display = "";
+      if (priceGroup) priceGroup.style.display = "";
+
+      if (value === "EXHIBITION") {
+        // Exhibition: no capacity, no price
+        if (capacityGroup) capacityGroup.style.display = "none";
+        if (priceGroup) priceGroup.style.display = "none";
+      } else if (value === "CONFERENCE") {
+        // Conference: capacity yes, price no
+        if (capacityGroup) capacityGroup.style.display = "";
+        if (priceGroup) priceGroup.style.display = "none";
+      } else {
+        // CONCERT or SPORTS: both capacity and price shown
+        if (capacityGroup) capacityGroup.style.display = "";
+        if (priceGroup) priceGroup.style.display = "";
+      }
+    }
+
+    if (typeSelect) {
+      typeSelect.addEventListener("change", updateVisibility);
+      updateVisibility(); // apply on initial load
+    }
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "admin_base.html" %}
+
+{% block title %}
+  {% if mode == "edit" %}Edit Payment | EMS{% else %}New Payment | EMS{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        {% if mode == "edit" %}Edit payment{% else %}Create payment{% endif %}
+      </h5>
+      <a href="{% url 'admin_payments' %}" class="btn btn-sm btn-outline-secondary">
+        Back to payments
+      </a>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="card-body">
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">
+              {{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="card-footer d-flex justify-content-end">
+        <a href="{% url 'admin_payments' %}" class="btn btn-outline-secondary me-2">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+          {% if mode == "edit" %}Save changes{% else %}Create payment{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

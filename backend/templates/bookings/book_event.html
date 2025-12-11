@@ -44,13 +44,16 @@
                     <span class="badge-event badge-conference">Conference</span>
                 {% elif event_type == "Concert" %}
                     <span class="badge-event badge-concert">Concert</span>
-                {% elif event_type == "Sports" %}
+                {% elif event_type == "Sports Game" %}
                     <span class="badge-event badge-sports">Sports Game</span>
                 {% endif %}
 
                 <h5 class="mt-3 mb-2">{{ event.title }}</h5>
                 <p class="mb-1"><strong>Venue:</strong> {{ event.venue.name }}</p>
-                <p class="mb-1"><strong>Starts:</strong> {{ event.start_time|date:"M d, Y H:i" }}</p>
+                <p class="mb-1">
+                    <strong>Starts:</strong>
+                    {{ event.start_time|date:"M d, Y g:i A" }}
+                </p>
 
                 {% if remaining_capacity is not None %}
                     <p class="mb-1">
@@ -67,7 +70,9 @@
                         <strong>Price per ticket:</strong> ${{ event.ticket_price }}
                     </p>
                 {% else %}
-                    <p class="mb-0"><strong>Ticket price:</strong> Free</p>
+                    <p class="mb-0">
+                        <strong>Ticket price:</strong> Free
+                    </p>
                 {% endif %}
             </div>
         </div>

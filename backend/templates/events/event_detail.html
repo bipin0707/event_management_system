@@ -50,12 +50,6 @@
       box-shadow: 0 10px 24px rgba(0,0,0,0.06);
   }
 
-  .info-card h5 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #6C63FF;
-  }
-
   .event-section-title {
       font-size: 1.05rem;
       font-weight: 600;
@@ -70,19 +64,19 @@
 
 {% block content %}
 
-<!-- HERO ------------------------------------------------------------------->
+{# ───────────────────────────── HERO ───────────────────────────── #}
 <div class="event-hero">
   <div class="d-flex flex-column flex-md-row justify-content-between">
     <div class="mb-3 mb-md-0">
       <div class="mb-2">
-        {% if event.venue.type == "Exhibition" %}
+        {% if event.event_type == "EXHIBITION" %}
           <span class="event-type-badge badge-exhibition">Exhibition</span>
-        {% elif event.venue.type == "Conference" %}
+        {% elif event.event_type == "CONFERENCE" %}
           <span class="event-type-badge badge-conference">Conference</span>
-        {% elif event.venue.type == "Concert" %}
+        {% elif event.event_type == "CONCERT" %}
           <span class="event-type-badge badge-concert">Concert</span>
-        {% elif event.venue.type == "Sports" %}
-          <span class="event-type-badge badge-sports">Sports</span>
+        {% elif event.event_type == "SPORTS" %}
+          <span class="event-type-badge badge-sports">Sports Game</span>
         {% endif %}
         <span class="status-pill ms-2">
           {{ event.get_status_display|default:event.status }}
@@ -92,30 +86,44 @@
       <p class="event-meta-line mb-0">
         {{ event.venue.name }} &middot;
         {{ event.venue.address }}
+        {% if event.venue.city %}, {{ event.venue.city }}{% endif %}
+        {% if event.venue.state %}, {{ event.venue.state }}{% endif %}
+        {% if event.venue.zipcode %}, {{ event.venue.zipcode }}{% endif %}
+        {% if event.venue.country %}, {{ event.venue.country }}{% endif %}
       </p>
     </div>
     <div class="text-md-end">
       <p class="mb-1 event-meta-line">
-        <strong>Starts:</strong> {{ event.start_time|date:"M d, Y H:i" }}
+        <strong>Starts:</strong> {{ event.start_time|date:"M d, Y h:i A" }}
       </p>
       <p class="mb-1 event-meta-line">
-        <strong>Ends:</strong> {{ event.end_time|date:"M d, Y H:i" }}
+        <strong>Ends:</strong> {{ event.end_time|date:"M d, Y h:i A" }}
       </p>
-      {% if event.ticket_price %}
+
+      {# PRICE DISPLAY – based on event_type #}
+      {% if event.event_type == "CONCERT" or event.event_type == "SPORTS" %}
+        {% if event.ticket_price and event.ticket_price > 0 %}
+          <p class="mb-0 event-meta-line">
+            <strong>Ticket price:</strong> ${{ event.ticket_price }}
+          </p>
+        {% else %}
+          <p class="mb-0 event-meta-line">
+            <strong>Ticket price:</strong> Not set
+          </p>
+        {% endif %}
+      {% elif event.event_type == "EXHIBITION" %}
         <p class="mb-0 event-meta-line">
-          <strong>Ticket price:</strong> ${{ event.ticket_price }}
+          <strong>Ticket price:</strong> No ticket required
         </p>
       {% else %}
-        <p class="mb-0 event-meta-line">
-          <strong>Ticket price:</strong> Free or not set
-        </p>
+        {# CONFERENCE: explicit requirement – do NOT show price anywhere #}
       {% endif %}
     </div>
   </div>
 </div>
 
 <div class="row g-4">
-  <!-- LEFT COLUMN: DETAILS -------------------------------------------------->
+  {# ───────────────── LEFT: DETAILS ───────────────── #}
   <div class="col-lg-8">
     <div class="card info-card mb-3">
       <div class="card-body">
@@ -133,36 +141,46 @@
     <div class="card info-card mb-3">
       <div class="card-body">
         <div class="event-section-title">Schedule & details</div>
+
         <p class="mb-2">
           <span class="event-label">Starts:</span>
-          {{ event.start_time|date:"l, M d, Y H:i" }}
+          {{ event.start_time|date:"l, M d, Y h:i A" }}
         </p>
         <p class="mb-2">
           <span class="event-label">Ends:</span>
-          {{ event.end_time|date:"l, M d, Y H:i" }}
+          {{ event.end_time|date:"l, M d, Y h:i A" }}
         </p>
+
         <p class="mb-2">
           <span class="event-label">Venue:</span>
-          {{ event.venue.name }}{% if event.venue.type %} ({{ event.venue.type }}){% endif %}<br>
-          <span class="text-muted">{{ event.venue.address }}</span>
+            {{ event.venue.name }}{% if event.venue.type %} ({{ event.venue.type }}){% endif %}<br>
+            {% if event.venue.address %}
+              {{ event.venue.address }}<br>
+            {% endif %}
+            {% if event.venue.city or event.venue.state or event.venue.zipcode %}
+              {{ event.venue.city }}{% if event.venue.city and event.venue.state %}, {% endif %}
+              {{ event.venue.state }} {% if event.venue.zipcode %}{{ event.venue.zipcode }}{% endif %}<br>
+            {% endif %}
+            {% if event.venue.country %}{{ event.venue.country }}{% endif %}
         </p>
-        {% if event.capacity %}
+
+        {% if event.event_type != "EXHIBITION" and event.capacity %}
           <p class="mb-2">
             <span class="event-label">Capacity:</span>
             {{ event.capacity }}
           </p>
         {% endif %}
+
         <p class="mb-0">
           <span class="event-label">Event type:</span>
-          {{ event.venue.type }}
-          {% if event.venue.type == "Exhibition" %}
-            – announcement only, no booking required.
-          {% elif event.venue.type == "Conference" %}
-            – free entry, reservation required.
-          {% elif event.venue.type == "Concert" %}
-            – paid ticket booking.
-          {% elif event.venue.type == "Sports" %}
-            – paid ticket booking.
+          {% if event.event_type == "EXHIBITION" %}
+            Exhibition – announcement only, no booking required.
+          {% elif event.event_type == "CONFERENCE" %}
+            Conference – free entry, reservation rules apply. (No ticket price shown.)
+          {% elif event.event_type == "CONCERT" %}
+            Concert – paid ticket event (per participant, can be multi-day).
+          {% elif event.event_type == "SPORTS" %}
+            Sports Game – paid ticket event.
           {% endif %}
         </p>
       </div>
@@ -189,45 +207,42 @@
     </div>
   </div>
 
-  <!-- RIGHT COLUMN: NEXT STEPS / BOOKING ----------------------------------->
+  {# ───────────────── RIGHT: NEXT STEPS ───────────────── #}
   <div class="col-lg-4">
     <div class="card info-card mb-3">
       <div class="card-body">
         <div class="event-section-title">Next steps</div>
 
-        {% if event.venue.type == "Exhibition" %}
+        {% if event.event_type == "EXHIBITION" %}
           <p class="text-muted mb-3">
             This exhibition is for announcement and information only.
-            No booking is required.
+            No booking or ticket is required.
           </p>
-        {% elif event.venue.type == "Conference" %}
+
+        {% elif event.event_type == "CONFERENCE" %}
           <p class="text-muted mb-3">
-            This is a free event, but reservation is required to secure your seat.
+            This is a free conference. Reservations may be managed directly by
+            the organizer or the platform administrator.
           </p>
+          {# Requirement: no booking button and no price for conferences #}
+
         {% else %}
+          {# CONCERT / SPORTS #}
           <p class="text-muted mb-3">
             This is a paid event. You can book tickets using the button below,
             subject to available capacity.
           </p>
-        {% endif %}
 
-        {% if event.status == "PUBLISHED" or event.status == "published" %}
-          {% if event.venue.type != "Exhibition" %}
+          {% if event.status == "PUBLISHED" or event.status == "published" %}
             <a href="{% url 'bookings:book_event' event.event_id %}"
                class="btn btn-primary w-100 mb-2">
               Book this event
             </a>
+          {% else %}
+            <p class="text-danger mb-2">
+              This event is not currently open for booking.
+            </p>
           {% endif %}
-        {% else %}
-          <p class="text-danger mb-2">
-            This event is not currently open for booking.
-          </p>
-        {% endif %}
-
-        {% if remaining_capacity is not None %}
-          <p class="mb-0 text-muted">
-            Remaining capacity: {{ remaining_capacity }}
-          </p>
         {% endif %}
       </div>
     </div>
@@ -236,8 +251,8 @@
       <div class="card-body">
         <div class="event-section-title">Need help?</div>
         <p class="mb-2">
-          If you have questions about the event, feel free to contact the organizer
-          using the details provided, or reach out to the platform administrator.
+          If you have questions about the event, contact the organizer
+          using the details above or reach out to the platform administrator.
         </p>
         {% if user.is_authenticated %}
           <p class="mb-0 text-muted">

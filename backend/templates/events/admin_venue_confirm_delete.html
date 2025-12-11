@@ -1,0 +1,26 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Delete Venue | EMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 class="h5">Delete venue</h1>
+      <p>
+        Are you sure you want to permanently delete the venue
+        <strong>{{ venue.name }}</strong>?
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <a href="{% url 'admin_venues' %}" class="btn btn-outline-secondary">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-danger">
+          Yes, delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -34,7 +34,7 @@
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 12px;
-    color: #9ecaff;
+    color: #0f172a;
   }
 
   /* Fix dropdown overlap */
@@ -42,7 +42,7 @@
     z-index: 99999 !important;
     position: absolute !important;
   }
-  
+
   .navbar {
     z-index: 10000 !important;
     position: relative;
@@ -68,15 +68,86 @@
     {% endif %}
   </div>
 
+  <!-- PERSONAL DETAILS (from CUSTOMER table) -->
+  {% if customer %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Personal details</h5>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <div class="text-muted small">Full name</div>
+            <div>{{ customer.name }}</div>
+          </div>
+          <div class="col-md-6 mb-2">
+            <div class="text-muted small">Email</div>
+            <div>{{ customer.email }}</div>
+          </div>
+
+          {% if customer.phone %}
+          <div class="col-md-6 mb-2">
+            <div class="text-muted small">Phone</div>
+            <div>{{ customer.phone }}</div>
+          </div>
+          {% endif %}
+
+          {% if customer.dob %}
+          <div class="col-md-6 mb-2">
+            <div class="text-muted small">Date of birth</div>
+            <div>{{ customer.dob|date:"M d, Y" }}</div>
+          </div>
+          {% endif %}
+
+          {% if customer.address or customer.city or customer.state or customer.zipcode or customer.country %}
+          <div class="col-md-12 mt-2">
+            <div class="text-muted small">Address</div>
+            <div>
+              {% if customer.address %}
+                {{ customer.address }}<br>
+              {% endif %}
+
+              {% if customer.city or customer.state or customer.zipcode %}
+                {% if customer.city %}{{ customer.city }}{% endif %}
+                {% if customer.city and customer.state %}, {% endif %}
+                {% if customer.state %}{{ customer.state }}{% endif %}
+                {% if customer.zipcode %} {{ customer.zipcode }}{% endif %}<br>
+              {% endif %}
+
+              {% if customer.country %}
+                {{ customer.country }}
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      Your profile is linked to a login account, but no detailed customer record was found.
+      New bookings and registrations will automatically create one.
+    </div>
+  {% endif %}
+
   <!-- UPCOMING BOOKINGS -->
-  <h4 class="section-title">Upcoming Bookings</h4>
+  <h4 class="section-title">Upcoming bookings</h4>
   {% if upcoming_bookings %}
     {% for booking in upcoming_bookings %}
       <div class="booking-card mb-3">
         <h5>{{ booking.event.title }}</h5>
-        <p class="text-muted">{{ booking.event.venue.name }} – {{ booking.event.start_time|date:"M d, Y H:i" }}</p>
+        <p class="text-muted">
+          {{ booking.event.venue.name }}
+          {% if booking.event.venue.city or booking.event.venue.country %}
+            ·
+            {% if booking.event.venue.city %}{{ booking.event.venue.city }}{% endif %}
+            {% if booking.event.venue.city and booking.event.venue.country %}, {% endif %}
+            {% if booking.event.venue.country %}{{ booking.event.venue.country }}{% endif %}
+          {% endif %}
+          – {{ booking.event.start_time|date:"M d, Y H:i" }}
+        </p>
+
         <p><strong>Tickets:</strong> {{ booking.ticket_qty }}</p>
-        <p><strong>Total Paid:</strong> ${{ booking.total_price }}</p>
+        <p><strong>Total paid:</strong> ${{ booking.total_price }}</p>
 
         <a href="{% url 'events:event_detail' booking.event.event_id %}"
            class="btn btn-outline-dark btn-sm">View event</a>
@@ -95,15 +166,24 @@
   {% endif %}
 
   <!-- PAST BOOKINGS -->
-  <h4 class="section-title mt-4">Past Bookings</h4>
+  <h4 class="section-title mt-4">Past bookings</h4>
   {% if past_bookings %}
     {% for booking in past_bookings %}
       <div class="booking-card mb-3">
         <h5>{{ booking.event.title }}</h5>
-        <p class="text-muted">{{ booking.event.venue.name }} – {{ booking.event.start_time|date:"M d, Y H:i" }}</p>
+        <p class="text-muted">
+          {{ booking.event.venue.name }}
+          {% if booking.event.venue.city or booking.event.venue.country %}
+            ·
+            {% if booking.event.venue.city %}{{ booking.event.venue.city }}{% endif %}
+            {% if booking.event.venue.city and booking.event.venue.country %}, {% endif %}
+            {% if booking.event.venue.country %}{{ booking.event.venue.country }}{% endif %}
+          {% endif %}
+          – {{ booking.event.start_time|date:"M d, Y H:i" }}
+        </p>
 
         <p><strong>Tickets:</strong> {{ booking.ticket_qty }}</p>
-        <p><strong>Total Paid:</strong> ${{ booking.total_price }}</p>
+        <p><strong>Total paid:</strong> ${{ booking.total_price }}</p>
 
         <a href="{% url 'events:event_detail' booking.event.event_id %}"
            class="btn btn-outline-dark btn-sm">View event</a>
