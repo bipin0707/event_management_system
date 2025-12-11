@@ -21,6 +21,17 @@
     </div>
   </div>
 
+  {# NEW: flash messages #}
+  {% if messages %}
+    <div class="mb-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} mb-0">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
   {% if venues %}
     <div class="card shadow-sm">
       <div class="card-body">
@@ -39,14 +50,10 @@
                 <tr>
                   <td>{{ venue.name }}</td>
                   <td>
-                    {% if venue.address %}
-                      {{ venue.address }}<br>
-                    {% endif %}
+                    {% if venue.address %}{{ venue.address }}<br>{% endif %}
                     {% if venue.city or venue.state or venue.zipcode %}
-                      {% if venue.city %}{{ venue.city }}{% endif %}
-                      {% if venue.city and venue.state %}, {% endif %}
-                      {% if venue.state %}{{ venue.state }}{% endif %}
-                      {% if venue.zipcode %} {{ venue.zipcode }}{% endif %}<br>
+                      {{ venue.city }}{% if venue.city and venue.state %}, {% endif %}
+                      {{ venue.state }} {% if venue.zipcode %}{{ venue.zipcode }}{% endif %}<br>
                     {% endif %}
                     {% if venue.country %}{{ venue.country }}{% endif %}
                   </td>

@@ -17,6 +17,8 @@ from events.forms import AdminEventForm, AdminVenueForm
 from customers.models import Customer
 from customers.forms import AdminCustomerForm
 from .forms import AdminForm 
+from django.db.models import ProtectedError
+
 # ─────────────────────────────────────────────────────────────
 # User registration / profile
 # ─────────────────────────────────────────────────────────────
@@ -428,15 +430,28 @@ def admin_event_delete(request, event_id):
 
     if request.method == "POST":
         title = event.title
-        event.delete()
-        messages.success(request, f"Event '{title}' has been deleted.")
+        try:
+            # this may raise ProtectedError if there are related bookings
+            event.delete()
+            messages.success(request, f"Event '{title}' has been deleted.")
+        except ProtectedError:
+            messages.error(
+                request,
+                (
+                    f"Cannot delete event '{title}' because there are bookings "
+                    "linked to it. Cancel or delete those bookings first."
+                ),
+            )
+        # always go back to the Events list
         return redirect("admin_events")
 
+    # GET: show confirmation page
     return render(
         request,
         "events/admin_event_confirm_delete.html",
         {"event": event},
     )
+
 
 
 # ─────────────────────────────────────────────────────────────
@@ -497,13 +512,22 @@ def admin_venue_delete(request, venue_id):
 
     if request.method == "POST":
         name = venue.name
-        venue.delete()
-        messages.success(request, f"Venue '{name}' has been deleted.")
+        try:
+            venue.delete()
+            messages.success(request, f"Venue '{name}' has been deleted.")
+        except ProtectedError:
+            messages.error(
+                request,
+                (
+                    f"Cannot delete venue '{name}' because there are events "
+                    "assigned to it. Reassign or delete those events first."
+                ),
+            )
         return redirect("admin_venues")
 
     return render(
         request,
-        "events/admin_venue_confirm_delete.html",   # ← DELETE template
+        "events/admin_venue_confirm_delete.html",
         {"venue": venue},
     )
 
