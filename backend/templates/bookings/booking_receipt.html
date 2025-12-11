@@ -115,17 +115,22 @@
           {% if booking.customer.dob %}
             DOB: {{ booking.customer.dob|date:"M d, Y" }}<br>
           {% endif %}
-          {% if booking.customer.address or booking.customer.city or booking.customer.state
-                or booking.customer.zipcode or booking.customer.country %}
+          
+          {# --- ADDRESS BLOCK (Fixed Syntax) --- #}
+          {% if booking.customer.address or booking.customer.city or booking.customer.state or booking.customer.zipcode or booking.customer.country %}
             {% if booking.customer.address %}{{ booking.customer.address }}<br>{% endif %}
+            
             {% if booking.customer.city or booking.customer.state or booking.customer.zipcode %}
               {% if booking.customer.city %}{{ booking.customer.city }}{% endif %}
               {% if booking.customer.city and booking.customer.state %}, {% endif %}
               {% if booking.customer.state %}{{ booking.customer.state }}{% endif %}
               {% if booking.customer.zipcode %} {{ booking.customer.zipcode }}{% endif %}<br>
             {% endif %}
+            
             {% if booking.customer.country %}{{ booking.customer.country }}{% endif %}
           {% endif %}
+          {# --- END ADDRESS BLOCK --- #}
+
         </div>
       </div>
       <div class="col-md-6 mt-3 mt-md-0">

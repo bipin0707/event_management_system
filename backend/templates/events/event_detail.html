@@ -176,9 +176,9 @@
           {% if event.event_type == "EXHIBITION" %}
             Exhibition – announcement only, no booking required.
           {% elif event.event_type == "CONFERENCE" %}
-            Conference – free entry, reservation rules apply. (No ticket price shown.)
+            Conference – free entry
           {% elif event.event_type == "CONCERT" %}
-            Concert – paid ticket event (per participant, can be multi-day).
+            Concert – paid ticket event .
           {% elif event.event_type == "SPORTS" %}
             Sports Game – paid ticket event.
           {% endif %}
@@ -221,9 +221,21 @@
 
         {% elif event.event_type == "CONFERENCE" %}
           <p class="text-muted mb-3">
-            This is a free conference. Reservations may be managed directly by
-            the organizer or the platform administrator.
+            This is a free conference.
+            <br>
+            <small>Limit: 1 seat reservation per person.</small>
           </p>
+
+          {% if event.status == "PUBLISHED" or event.status == "published" %}
+            <a href="{% url 'bookings:book_event' event.event_id %}"
+              class="btn btn-primary w-100 mb-2">
+              Reserve a seat
+            </a>
+          {% else %}
+            <p class="text-danger mb-2">
+              This event is not currently open for reservations.
+            </p>
+          {% endif %}
           {# Requirement: no booking button and no price for conferences #}
 
         {% else %}
